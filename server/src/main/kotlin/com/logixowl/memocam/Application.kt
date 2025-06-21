@@ -1,20 +1,35 @@
 package com.logixowl.memocam
 
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import com.logixowl.memocam.plugin.configureDatabase
+import com.logixowl.memocam.plugin.configureHTTP
+import com.logixowl.memocam.plugin.configureMonitoring
+import com.logixowl.memocam.plugin.configureRouting
+import com.logixowl.memocam.plugin.configureSecurity
+import com.logixowl.memocam.plugin.configureSerialization
+import com.logixowl.memocam.security.LocalProperties
+import io.ktor.server.application.Application
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 
 fun main() {
-    embeddedServer(Netty, port = SERVER_PORT, host = "0.0.0.0", module = Application::module)
+    embeddedServer(
+        Netty,
+        port = LocalProperties.serverPort,
+        host = "0.0.0.0",
+        module = Application::module
+    )
         .start(wait = true)
 }
 
 fun Application.module() {
-    routing {
-        get("/") {
-            call.respondText("Ktor: ${Greeting().greet()}")
-        }
-    }
+    println("Testing: ${LocalProperties.mongoBucket}, ${LocalProperties.mongoDbName}, ${LocalProperties.mongoDbUrl}")
+
+    configureDatabase()
+    configureSecurity()
+    configureSerialization()
+    configureMonitoring()
+    configureHTTP()
+    configureRouting()
+
+    println("Testing: ${LocalProperties.secretKey}, ${LocalProperties.secretIssuer}")
 }

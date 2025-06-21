@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
+    alias(libs.plugins.kotlin.serialization)
     application
 }
 
@@ -18,7 +19,6 @@ repositories {
 }
 
 dependencies {
-    implementation(projects.shared)
     implementation(libs.logback)
     implementation(libs.ktor.serverCore)
     implementation(libs.ktor.serverNetty)
@@ -33,6 +33,7 @@ dependencies {
 
     implementation(libs.ktor.mongo.core)
     implementation(libs.ktor.mongo.coroutine)
+    implementation(libs.ktor.mongo.driver.sync)
     implementation(libs.ktor.jbcrypt)
 
     testImplementation(libs.ktor.serverTestHost)
