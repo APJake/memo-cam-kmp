@@ -22,14 +22,10 @@ fun main() {
 }
 
 fun Application.module() {
-    println("Testing: ${LocalProperties.mongoBucket}, ${LocalProperties.mongoDbName}, ${LocalProperties.mongoDbUrl}")
-
     configureDatabase()
     configureSecurity()
     configureSerialization()
     configureMonitoring()
     configureHTTP()
     configureRouting()
-
-    println("Testing: ${LocalProperties.secretKey}, ${LocalProperties.secretIssuer}")
 }
