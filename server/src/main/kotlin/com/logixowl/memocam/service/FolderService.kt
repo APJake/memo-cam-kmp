@@ -34,13 +34,26 @@ class FolderService {
                 id = folder.id,
                 name = folder.name,
                 createdAt = folder.createdAt,
-                imageCount = imageCount
+                posterImage = folder.posterImage,
+                imageCount = imageCount,
             )
         }
     }
 
     suspend fun getFolderById(folderId: String, userId: String): Folder? {
         return folders.findOne(and(Folder::id eq folderId, Folder::userId eq userId))
+    }
+
+    suspend fun updateFolderImage(folderId: String, userId: String, imageId: String): Folder? {
+        val folder = getFolderById(folderId, userId)?: return null
+        val folderToUpdate = folder.copy(
+            posterImage = imageId
+        )
+        folders.replaceOneById(
+            id = folderId,
+            replacement = folderToUpdate
+        )
+        return folderToUpdate
     }
 
     suspend fun deleteFolder(folderId: String, userId: String): Boolean {

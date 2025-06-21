@@ -15,5 +15,6 @@ data class Folder(
     val id: String = ObjectId().toString(),
     val name: String,
     val userId: String,
+    val posterImage: String? = null,
     val createdAt: Long = System.currentTimeMillis()
 )

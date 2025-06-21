@@ -6,24 +6,15 @@ import com.logixowl.memocam.response.ImageResponse
 import com.logixowl.memocam.response.PaginatedImagesResponse
 import com.mongodb.client.gridfs.model.GridFSUploadOptions
 import io.ktor.http.content.PartData
-import io.ktor.http.content.streamProvider
-import io.ktor.util.cio.writeChannel
-import io.ktor.utils.io.asSource
-import io.ktor.utils.io.copyAndClose
-import io.ktor.utils.io.readByteArray
 import io.ktor.utils.io.readRemaining
-import io.ktor.utils.io.toByteArray
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.io.buffered
 import kotlinx.io.readByteArray
 import org.bson.Document
 import org.bson.types.ObjectId
 import org.litote.kmongo.and
 import org.litote.kmongo.eq
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.File
 
 /**
  * Created by AP-Jake
@@ -80,6 +71,17 @@ class ImageService {
                 return@withContext null
             }
         }
+    }
+
+    suspend fun checkImage(imageId: String, folderId: String, userId: String): Boolean {
+        val imageMetadata = images.findOne(
+            and(
+                ImageMetadata::id eq imageId,
+                ImageMetadata::userId eq userId,
+                ImageMetadata::folderId eq folderId
+            )
+        )
+        return imageMetadata != null
     }
 
     suspend fun getImage(imageId: String, userId: String): Pair<ByteArray, ImageMetadata>? {

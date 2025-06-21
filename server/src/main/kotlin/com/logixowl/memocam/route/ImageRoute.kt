@@ -77,6 +77,15 @@ fun Route.imageRoutes() {
                     return@post
                 }
 
+                // update poster image if required
+                if (folder.posterImage.isNullOrBlank()) {
+                    folderService.updateFolderImage(
+                        folderId = folderId,
+                        userId = userId,
+                        imageId = imageMetadata!!.id
+                    )
+                }
+
                 call.respond(
                     HttpStatusCode.Created,
                     ApiResponse(

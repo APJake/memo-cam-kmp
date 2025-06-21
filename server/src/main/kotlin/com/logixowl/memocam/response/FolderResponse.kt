@@ -12,5 +12,6 @@ data class FolderResponse(
     val id: String,
     val name: String,
     val createdAt: Long,
+    val posterImage: String? = null,
     val imageCount: Int = 0
 )
