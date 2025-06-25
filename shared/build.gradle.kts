@@ -22,6 +22,10 @@ kotlin {
     jvm()
     
     sourceSets {
+        androidMain.dependencies {
+            implementation(libs.koin.android)
+            implementation(libs.ktor.client.okhttp)
+        }
         commonMain.dependencies {
             implementation(libs.coroutine.core)
             implementation(libs.kotlinx.datetime)
