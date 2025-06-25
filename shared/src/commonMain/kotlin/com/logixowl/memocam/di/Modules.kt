@@ -15,6 +15,7 @@ import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import kotlin.jvm.JvmStatic
 
 /**
  * Created by AP-Jake
@@ -23,14 +24,17 @@ import org.koin.dsl.module
 
 expect val platformModule: Module
 
-val sharedModule = module {
-    single { HttpClientFactory.create(get(), get()) }
+object SharedDI {
+    @JvmStatic
+    val sharedModule = module {
+        single { HttpClientFactory.create(get(), get()) }
 
-    singleOf(::MainPrefsDataSource).bind<PrefsDataSource>()
-    singleOf(::AuthNetworkDataSourceImpl).bind<AuthNetworkDataSource>()
-    singleOf(::MemoNetworkDataSourceImpl).bind<MemoNetworkDataSource>()
+        singleOf(::MainPrefsDataSource).bind<PrefsDataSource>()
+        singleOf(::AuthNetworkDataSourceImpl).bind<AuthNetworkDataSource>()
+        singleOf(::MemoNetworkDataSourceImpl).bind<MemoNetworkDataSource>()
 
-    // repository
-    singleOf(::AuthRepositoryImpl).bind<AuthRepository>()
-    singleOf(::MemoRepositoryImpl).bind<MemoRepository>()
+        // repository
+        singleOf(::AuthRepositoryImpl).bind<AuthRepository>()
+        singleOf(::MemoRepositoryImpl).bind<MemoRepository>()
+    }
 }
