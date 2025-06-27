@@ -10,7 +10,7 @@ sealed interface LoginAction {
     data object OnClickLogin : LoginAction
     data object OnClickRegister : LoginAction
 
-    data class OnChangedUsername(val value: String) : LoginAction
+    data class OnChangedEmail(val value: String) : LoginAction
     data class OnChangedPassword(val value: String) : LoginAction
     data object OnToggledPasswordVisibility : LoginAction
 

@@ -8,13 +8,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.logixowl.memocam.features.auth.login.LoginNavigation
+import com.logixowl.memocam.features.splash.SplashNavigation
 import com.logixowl.memocam.ui.navigations.AppNavHost
 import com.logixowl.memocam.ui.themes.AppTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Created by AP-Jake
@@ -23,14 +23,12 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
-fun App() {
+fun App(
+    viewModel: AppViewModel = koinViewModel()
+) {
     AppTheme {
         val navController = rememberNavController()
         val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
-
-        val startDestination = remember {
-            LoginNavigation
-        }
 
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -38,7 +36,7 @@ fun App() {
         ) {
             AppNavHost(
                 navController = navController,
-                startDestination = startDestination,
+                startDestination = SplashNavigation,
                 modifier = Modifier.padding(systemBarsPadding).imePadding(),
             )
         }

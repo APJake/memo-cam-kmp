@@ -1,5 +1,6 @@
 package com.logixowl.memocam.di
 
+import com.logixowl.memocam.app.AppViewModel
 import com.logixowl.memocam.features.auth.login.LoginViewModel
 import com.logixowl.memocam.features.auth.register.RegisterViewModel
 import com.logixowl.memocam.features.memo.dashboard.DashboardViewModel
@@ -12,6 +13,7 @@ import org.koin.dsl.module
  */
 
 val viewModelModules = module {
+    viewModelOf(::AppViewModel)
     viewModelOf(::DashboardViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::RegisterViewModel)

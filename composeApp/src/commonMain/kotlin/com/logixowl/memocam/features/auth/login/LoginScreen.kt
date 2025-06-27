@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
@@ -37,6 +39,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -75,14 +79,13 @@ fun LoginRoute(
         uiState = uiState,
         onAction = { action ->
             when (action) {
-                is LoginAction.OnChangedPassword -> {}
-                is LoginAction.OnChangedUsername -> {}
-                LoginAction.OnClickLogin -> {}
                 LoginAction.OnClickRegister -> {
                     onClickRegister.invoke()
                 }
 
-                LoginAction.OnToggledPasswordVisibility -> TODO()
+                else -> {
+                    viewModel.onAction(action)
+                }
             }
         }
     )
@@ -153,11 +156,11 @@ fun LoginScreen(
 
             // Email Field
             OutlinedTextField(
-                value = uiState.username,
-                onValueChange = { onAction(LoginAction.OnChangedUsername(it)) },
-                label = { Text("Username") },
+                value = uiState.email,
+                onValueChange = { onAction(LoginAction.OnChangedEmail(it)) },
+                label = { Text("Email") },
                 leadingIcon = {
-                    Icon(Icons.Default.Person, contentDescription = null)
+                    Icon(Icons.Default.Email, contentDescription = null)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -166,7 +169,12 @@ fun LoginScreen(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF81C784),
                     focusedLabelColor = Color(0xFF81C784)
-                )
+                ),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next
+                ),
+                singleLine = true,
             )
 
             // Password Field
@@ -199,7 +207,11 @@ fun LoginScreen(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF81C784),
                     focusedLabelColor = Color(0xFF81C784)
-                )
+                ),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done
+                ),
+                singleLine = true,
             )
 
             // Login Button
@@ -213,7 +225,7 @@ fun LoginScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF4CAF50)
                 ),
-                enabled = !uiState.isLoading
+                enabled = uiState.enabledLogin
             ) {
                 if (uiState.isLoading) {
                     CircularProgressIndicator(

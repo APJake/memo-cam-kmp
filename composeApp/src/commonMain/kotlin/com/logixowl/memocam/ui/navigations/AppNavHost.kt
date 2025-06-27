@@ -11,6 +11,7 @@ import com.logixowl.memocam.features.auth.register.navigateToRegister
 import com.logixowl.memocam.features.auth.register.registerScreen
 import com.logixowl.memocam.features.memo.dashboard.dashboardScreen
 import com.logixowl.memocam.features.memo.dashboard.navigateToDashboard
+import com.logixowl.memocam.features.splash.splashScreen
 import com.logixowl.memocam.ui.transition.AppTransition
 import com.logixowl.memocam.ui.transition.DefaultTransition
 
@@ -36,6 +37,13 @@ fun AppNavHost(
         popEnterTransition = transition.popEnterTransition,
         popExitTransition = transition.popExitTransition,
     ) {
+        // splash
+        splashScreen(
+            navController = navController,
+            onNavigateDashboard = navController::navigateToDashboard,
+            onNavigateLogin = navController::navigateToLogin
+        )
+
         // authentication
         loginScreen(
             onClickRegister = navController::navigateToRegister,

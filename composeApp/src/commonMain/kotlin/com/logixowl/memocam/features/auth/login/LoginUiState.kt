@@ -6,9 +6,12 @@ package com.logixowl.memocam.features.auth.login
  */
 
 data class LoginUiState(
-    val username: String = "",
+    val email: String = "",
     val password: String = "",
     val isLoading: Boolean = false,
     val isPasswordVisible: Boolean = false,
     val errorMessage: String? = null
-)
+) {
+    val enabledLogin: Boolean
+        get() = !isLoading && email.isNotBlank() && password.isNotBlank()
+}

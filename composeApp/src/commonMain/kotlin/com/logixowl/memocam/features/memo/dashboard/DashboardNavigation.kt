@@ -4,7 +4,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.logixowl.memocam.core.traceNavigation
-import com.logixowl.memocam.features.auth.login.LoginNavigation
 import kotlinx.serialization.Serializable
 
 /**
@@ -20,7 +19,7 @@ fun NavController.navigateToDashboard(
     isInclusive: Boolean = true,
     isStartDestination: Boolean = true,
 ) {
-    val navigation = LoginNavigation
+    val navigation = DashboardNavigation
     traceNavigation("Navigation: $navigation") {
         navigate(navigation) {
             if (isInclusive) {
