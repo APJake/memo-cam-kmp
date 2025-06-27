@@ -11,6 +11,8 @@ import com.logixowl.memocam.features.auth.register.navigateToRegister
 import com.logixowl.memocam.features.auth.register.registerScreen
 import com.logixowl.memocam.features.memo.dashboard.dashboardScreen
 import com.logixowl.memocam.features.memo.dashboard.navigateToDashboard
+import com.logixowl.memocam.features.settings.navigateToSettings
+import com.logixowl.memocam.features.settings.settingsScreen
 import com.logixowl.memocam.features.splash.splashScreen
 import com.logixowl.memocam.ui.transition.AppTransition
 import com.logixowl.memocam.ui.transition.DefaultTransition
@@ -54,10 +56,17 @@ fun AppNavHost(
             onNavigateToDashboard = navController::navigateToDashboard,
         )
 
+        // settings
+        settingsScreen(
+            onNavigateBack = navController::popBackStack,
+            onNavigateChangePassword = {},
+            onLogoutSuccess = navController::navigateToLogin
+        )
+
         // memo
         dashboardScreen(
             onNavigateCreateFolder = {},
-            onNavigateSettings = {},
+            onNavigateSettings = navController::navigateToSettings,
             onNavigateFolder = {},
         )
     }
