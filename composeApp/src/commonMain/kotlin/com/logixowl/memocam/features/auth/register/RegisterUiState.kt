@@ -14,4 +14,9 @@ data class RegisterUiState(
     val isPasswordVisible: Boolean = false,
     val isConfirmPasswordVisible: Boolean = false,
     val errorMessage: String? = null
-)
+) {
+    val enabledRegister: Boolean
+        get() = !isLoading && username.isNotBlank()
+                && email.isNotBlank() && password.isNotBlank()
+                && confirmPassword.isNotBlank()
+}

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -41,6 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -81,18 +84,12 @@ fun RegisterRoute(
         uiState = uiState,
         onAction = { action ->
             when (action) {
-                is RegisterAction.OnChangedConfirmPassword -> {}
-                is RegisterAction.OnChangedEmail -> {}
-                is RegisterAction.OnChangedName -> {}
-                is RegisterAction.OnChangedPassword -> {}
                 RegisterAction.OnClickedBackToLogin -> {
                     onClickLogin.invoke()
                 }
-                RegisterAction.OnClickedRegister -> {
-
+                else -> {
+                    viewModel.onAction(action)
                 }
-                RegisterAction.OnToggleConfirmPasswordVisibility -> {}
-                RegisterAction.OnTogglePasswordVisibility -> {}
             }
         }
     )
@@ -177,7 +174,11 @@ fun RegisterScreen(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFFFF9800),
                     focusedLabelColor = Color(0xFFFF9800)
-                )
+                ),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Next
+                ),
+                singleLine = true,
             )
 
             // Email Field
@@ -195,7 +196,12 @@ fun RegisterScreen(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFFFF9800),
                     focusedLabelColor = Color(0xFFFF9800)
-                )
+                ),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next
+                ),
+                singleLine = true,
             )
 
             // Password Field
@@ -228,7 +234,11 @@ fun RegisterScreen(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFFFF9800),
                     focusedLabelColor = Color(0xFFFF9800)
-                )
+                ),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Next
+                ),
+                singleLine = true,
             )
 
             // Confirm Password Field
@@ -261,7 +271,11 @@ fun RegisterScreen(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFFFF9800),
                     focusedLabelColor = Color(0xFFFF9800)
-                )
+                ),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done
+                ),
+                singleLine = true,
             )
 
             // Register Button
@@ -275,7 +289,7 @@ fun RegisterScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFFF9800)
                 ),
-                enabled = !uiState.isLoading
+                enabled = uiState.enabledRegister
             ) {
                 if (uiState.isLoading) {
                     CircularProgressIndicator(
