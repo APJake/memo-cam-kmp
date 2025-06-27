@@ -5,6 +5,7 @@ import com.logixowl.memocam.core.Result
 import com.logixowl.memocam.domain.model.Auth
 import com.logixowl.memocam.domain.model.payload.LoginPayload
 import com.logixowl.memocam.domain.model.payload.RegisterPayload
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Created by AP-Jake
@@ -12,6 +13,8 @@ import com.logixowl.memocam.domain.model.payload.RegisterPayload
  */
 
 interface AuthRepository {
+
+    val isLoggedIn: Flow<Boolean>
 
     suspend fun login(payload: LoginPayload): Result<Auth, DataError>
 

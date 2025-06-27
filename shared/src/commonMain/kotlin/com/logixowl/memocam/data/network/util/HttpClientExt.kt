@@ -1,7 +1,9 @@
 package com.logixowl.memocam.data.network.util
 
+import com.logixowl.memocam.core.AppLogger
 import com.logixowl.memocam.core.DataError
 import com.logixowl.memocam.core.Result
+import com.logixowl.memocam.data.network.response.BaseResponse
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.network.sockets.SocketTimeoutException
@@ -25,6 +27,7 @@ internal suspend inline fun <reified T> safeCall(
     } catch (e: UnresolvedAddressException) {
         return Result.Error(DataError.Remote.NO_INTERNET)
     } catch (e: Exception) {
+        AppLogger.e("HttpClientExt", "Response failed: $e")
         coroutineContext.ensureActive()
         return Result.Error(DataError.Remote.UNKNOWN)
     }
@@ -38,7 +41,7 @@ internal suspend inline fun <reified T> responseToResult(
     return when (response.status.value) {
         in 200..299 -> {
             try {
-                Result.Success(response.body<T>())
+                Result.Success(response.body<BaseResponse<T>>().result ?: (Unit as T))
             } catch (e: NoTransformationFoundException) {
                 Result.Error(DataError.Remote.SERIALIZATION)
             }
@@ -48,6 +51,9 @@ internal suspend inline fun <reified T> responseToResult(
         408 -> Result.Error(DataError.Remote.REQUEST_TIMEOUT)
         429 -> Result.Error(DataError.Remote.TOO_MANY_REQUESTS)
         in 500..599 -> Result.Error(DataError.Remote.SERVER)
-        else -> Result.Error(DataError.Remote.UNKNOWN)
+        else -> {
+            AppLogger.e("HttpClientExt", "Unknown status code: ${response.status}")
+            Result.Error(DataError.Remote.UNKNOWN)
+        }
     }
 }

@@ -4,11 +4,13 @@ import com.logixowl.memocam.core.DataError
 import com.logixowl.memocam.core.Result
 import com.logixowl.memocam.core.onSuccess
 import com.logixowl.memocam.domain.datasource.AuthNetworkDataSource
+import com.logixowl.memocam.domain.datasource.PrefsDataSource
 import com.logixowl.memocam.domain.model.Auth
 import com.logixowl.memocam.domain.model.payload.LoginPayload
 import com.logixowl.memocam.domain.model.payload.RegisterPayload
 import com.logixowl.memocam.domain.repository.AuthRepository
-import com.logixowl.memocam.domain.repository.PrefsRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.mapNotNull
 
 /**
  * Created by AP-Jake
@@ -16,9 +18,13 @@ import com.logixowl.memocam.domain.repository.PrefsRepository
  */
 
 internal class AuthRepositoryImpl(
-    private val prefsRepository: PrefsRepository,
+    private val prefsDataSource: PrefsDataSource,
     private val authNetworkDataSource: AuthNetworkDataSource,
 ) : AuthRepository {
+
+    override val isLoggedIn: Flow<Boolean>
+        get() = prefsDataSource.userToken.mapNotNull { it.isNotBlank() }
+
     override suspend fun login(payload: LoginPayload): Result<Auth, DataError> {
         return authNetworkDataSource.login(payload)
             .onSuccess {
@@ -34,14 +40,16 @@ internal class AuthRepositoryImpl(
     }
 
     override suspend fun logout(): Result<Unit, DataError> {
-        prefsRepository.logout()
+        prefsDataSource.updateUserId("")
+        prefsDataSource.updateUserName("")
+        prefsDataSource.updateUserToken("")
         return Result.Success(Unit)
     }
 
     private suspend fun saveUser(auth: Auth) {
-        prefsRepository.updateUser(
-            user = auth.user,
-            token = auth.token
-        )
+        prefsDataSource.updateUserId(auth.user.id)
+        prefsDataSource.updateUserEmail(auth.user.email)
+        prefsDataSource.updateUserName(auth.user.username)
+        prefsDataSource.updateUserToken(auth.token)
     }
 }

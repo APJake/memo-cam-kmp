@@ -10,7 +10,7 @@ import okio.Path.Companion.toPath
  * on 25/06/2025
  */
 
-internal const val dataStoreFileName = "memo_cam_main.preferences"
+internal const val dataStoreFileName = "memo_cam_main.preferences_pb"
 
 internal fun createDataStore(
     producePath: () -> String,

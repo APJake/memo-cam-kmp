@@ -48,10 +48,12 @@ internal object HttpClientFactory {
             install(Auth) {
                 bearer {
                     loadTokens {
-                        BearerTokens(
-                            accessToken = prefsDataSource.userToken.firstOrNull().orEmpty(),
-                            refreshToken = null
-                        )
+                        prefsDataSource.userToken.firstOrNull()?.takeIf { it.isNotBlank() }?.let {
+                            BearerTokens(
+                                accessToken = it,
+                                refreshToken = null
+                            )
+                        }
                     }
                 }
             }

@@ -6,7 +6,7 @@ package com.logixowl.memocam.data.network.util
  */
 
 internal object AppUrl {
-    private const val BASE_URL = "http://192.168.1.33:9009"
+    private const val BASE_URL = "http://10.0.2.2:9009"
 
     // authentication
     val login: String

@@ -12,12 +12,9 @@ import kotlinx.coroutines.flow.mapNotNull
  * on 27/06/2025
  */
 
-class PrefsRepositoryImpl(
+internal class PrefsRepositoryImpl(
     private val prefsDataSource: PrefsDataSource,
 ) : PrefsRepository {
-
-    override val isLoggedIn: Flow<Boolean>
-        get() = prefsDataSource.userToken.mapNotNull { it.isNotBlank() }
 
     override val user: Flow<User>
         get() = combine(
@@ -31,18 +28,4 @@ class PrefsRepositoryImpl(
                 username = name,
             )
         }
-
-    override suspend fun updateUser(user: User, token: String) {
-        prefsDataSource.updateUserId(user.id)
-        prefsDataSource.updateUserEmail(user.email)
-        prefsDataSource.updateUserName(user.username)
-        prefsDataSource.updateUserToken(token)
-    }
-
-    override suspend fun logout() {
-        prefsDataSource.updateUserId("")
-        prefsDataSource.updateUserEmail("")
-        prefsDataSource.updateUserName("")
-        prefsDataSource.updateUserToken("")
-    }
 }

@@ -10,10 +10,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface PrefsRepository {
 
-    val isLoggedIn: Flow<Boolean>
     val user: Flow<User>
-
-    suspend fun updateUser(user: User, token: String)
-    suspend fun logout()
 
 }
