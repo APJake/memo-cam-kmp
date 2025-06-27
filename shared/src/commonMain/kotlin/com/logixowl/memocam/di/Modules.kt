@@ -6,11 +6,13 @@ import com.logixowl.memocam.data.network.util.HttpClientFactory
 import com.logixowl.memocam.data.prefs.MainPrefsDataSource
 import com.logixowl.memocam.data.repository.AuthRepositoryImpl
 import com.logixowl.memocam.data.repository.MemoRepositoryImpl
+import com.logixowl.memocam.data.repository.PrefsRepositoryImpl
 import com.logixowl.memocam.domain.datasource.AuthNetworkDataSource
 import com.logixowl.memocam.domain.datasource.MemoNetworkDataSource
 import com.logixowl.memocam.domain.datasource.PrefsDataSource
 import com.logixowl.memocam.domain.repository.AuthRepository
 import com.logixowl.memocam.domain.repository.MemoRepository
+import com.logixowl.memocam.domain.repository.PrefsRepository
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
@@ -34,6 +36,7 @@ object SharedDI {
         singleOf(::MemoNetworkDataSourceImpl).bind<MemoNetworkDataSource>()
 
         // repository
+        singleOf(::PrefsRepositoryImpl).bind<PrefsRepository>()
         singleOf(::AuthRepositoryImpl).bind<AuthRepository>()
         singleOf(::MemoRepositoryImpl).bind<MemoRepository>()
     }
