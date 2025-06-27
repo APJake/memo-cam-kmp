@@ -10,6 +10,7 @@ data class FolderImage(
     val fileName: String,
     val originalName: String,
     val size: Long,
+    val isFrontCam: Boolean,
     val contentType: String,
     val uploadedAt: Long
 )

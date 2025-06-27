@@ -3,8 +3,8 @@ package com.logixowl.memocam.data.network.datasource
 import com.logixowl.memocam.core.DataError
 import com.logixowl.memocam.core.Result
 import com.logixowl.memocam.core.map
+import com.logixowl.memocam.data.mapper.PayloadMapper
 import com.logixowl.memocam.data.mapper.ResponseMapper
-import com.logixowl.memocam.data.network.request.CreateFolderRequest
 import com.logixowl.memocam.data.network.response.FolderImageResponse
 import com.logixowl.memocam.data.network.response.FolderResponse
 import com.logixowl.memocam.data.network.response.PaginatedImagesResponse
@@ -14,6 +14,8 @@ import com.logixowl.memocam.domain.datasource.MemoNetworkDataSource
 import com.logixowl.memocam.domain.model.Folder
 import com.logixowl.memocam.domain.model.FolderImage
 import com.logixowl.memocam.domain.model.PaginatedData
+import com.logixowl.memocam.domain.model.payload.CreateFolderPayload
+import com.logixowl.memocam.domain.model.payload.UpdateFolderPayload
 import com.logixowl.memocam.domain.model.payload.UploadFolderImagePayload
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
@@ -21,7 +23,6 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.post
-import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
@@ -31,7 +32,7 @@ import io.ktor.http.HttpHeaders
  * on 24/06/2025
  */
 
-class MemoNetworkDataSourceImpl(
+internal class MemoNetworkDataSourceImpl(
     private val client: HttpClient,
 ) : MemoNetworkDataSource {
     override suspend fun getAllFolders(): Result<List<Folder>, DataError.Remote> {
@@ -40,10 +41,18 @@ class MemoNetworkDataSourceImpl(
         }.map { it.map(ResponseMapper::mapToFolderDomain) }
     }
 
-    override suspend fun createFolder(name: String): Result<Folder, DataError.Remote> {
+    override suspend fun createFolder(payload: CreateFolderPayload): Result<Folder, DataError.Remote> {
         return safeCall<FolderResponse> {
             client.post(AppUrl.createFolder) {
-                setBody(CreateFolderRequest(name))
+                setBody(PayloadMapper.mapToCreateFolderRequest(payload))
+            }
+        }.map(ResponseMapper::mapToFolderDomain)
+    }
+
+    override suspend fun updateFolder(payload: UpdateFolderPayload): Result<Folder, DataError.Remote> {
+        return safeCall<FolderResponse> {
+            client.post(AppUrl.updateFolder(payload.folderId)) {
+                setBody(PayloadMapper.mapToUpdateFolderRequest(payload))
             }
         }.map(ResponseMapper::mapToFolderDomain)
     }
@@ -86,12 +95,4 @@ class MemoNetworkDataSourceImpl(
         }
     }
 
-    override suspend fun updatePosterImage(
-        folderId: String,
-        imageId: String
-    ): Result<Folder, DataError.Remote> {
-        return safeCall<FolderResponse> {
-            client.put(AppUrl.updateFolderPoster(folderId, imageId))
-        }.map(ResponseMapper::mapToFolderDomain)
-    }
 }

@@ -8,8 +8,9 @@ import kotlinx.serialization.Serializable
  */
 
 @Serializable
-internal data class CreateFolderRequest(
+internal data class UpdateFolderRequest(
     val name: String,
     val description: String,
     val iconId: Int,
+    val posterImage: String?,
 )

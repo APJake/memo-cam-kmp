@@ -5,7 +5,7 @@ package com.logixowl.memocam.data.network.response
  * on 22/06/2025
  */
 
-data class AuthResponse(
+internal data class AuthResponse(
     val token: String?,
     val user: UserResponse?,
 )

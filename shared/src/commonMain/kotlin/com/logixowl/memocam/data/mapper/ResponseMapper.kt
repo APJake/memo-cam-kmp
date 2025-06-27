@@ -16,7 +16,7 @@ import com.logixowl.memocam.domain.model.User
  * on 24/06/2025
  */
 
-object ResponseMapper {
+internal object ResponseMapper {
 
     fun mapToPaginatedImagesDomain(res: PaginatedImagesResponse) = PaginatedData(
         images = res.images?.map(::mapToFolderImageDomain).orEmpty(),
@@ -32,6 +32,7 @@ object ResponseMapper {
         fileName = res.fileName.orEmpty(),
         originalName = res.originalName.orEmpty(),
         size = res.size ?: -1,
+        isFrontCam = res.isFrontCam ?: true,
         contentType = res.contentType.orEmpty(),
         uploadedAt = res.uploadedAt ?: -1,
     )
@@ -39,6 +40,8 @@ object ResponseMapper {
     fun mapToFolderDomain(res: FolderResponse) = Folder(
         id = res.id.orEmpty(),
         name = res.name.orEmpty(),
+        description = res.description.orEmpty(),
+        iconId = res.iconId ?: 1,
         createdAt = res.createdAt ?: -1,
         posterImage = res.posterImage.orEmpty(),
         imageCount = res.imageCount ?: -1,

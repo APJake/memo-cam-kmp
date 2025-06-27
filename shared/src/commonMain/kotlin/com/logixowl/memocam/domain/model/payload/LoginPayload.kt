@@ -6,6 +6,6 @@ package com.logixowl.memocam.domain.model.payload
  */
 
 data class LoginPayload(
-    val username: String,
+    val email: String,
     val password: String,
 )

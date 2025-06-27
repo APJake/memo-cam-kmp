@@ -5,6 +5,8 @@ import com.logixowl.memocam.core.Result
 import com.logixowl.memocam.domain.model.Folder
 import com.logixowl.memocam.domain.model.FolderImage
 import com.logixowl.memocam.domain.model.PaginatedData
+import com.logixowl.memocam.domain.model.payload.CreateFolderPayload
+import com.logixowl.memocam.domain.model.payload.UpdateFolderPayload
 import com.logixowl.memocam.domain.model.payload.UploadFolderImagePayload
 
 /**
@@ -18,7 +20,11 @@ interface MemoNetworkDataSource {
     suspend fun getAllFolders(): Result<List<Folder>, DataError.Remote>
 
     suspend fun createFolder(
-        name: String
+        payload: CreateFolderPayload,
+    ): Result<Folder, DataError.Remote>
+
+    suspend fun updateFolder(
+        payload: UpdateFolderPayload,
     ): Result<Folder, DataError.Remote>
 
     suspend fun deleteFolder(
@@ -43,11 +49,5 @@ interface MemoNetworkDataSource {
     suspend fun deleteImage(
         imageId: String
     ): Result<Unit, DataError.Remote>
-
-    // --- Poster ---
-    suspend fun updatePosterImage(
-        folderId: String,
-        imageId: String
-    ): Result<Folder, DataError.Remote>
 
 }

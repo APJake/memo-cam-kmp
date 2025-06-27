@@ -2,7 +2,6 @@ package com.logixowl.memocam.data.network.datasource
 
 import com.logixowl.memocam.core.DataError
 import com.logixowl.memocam.core.Result
-import com.logixowl.memocam.core.dataOrNull
 import com.logixowl.memocam.core.map
 import com.logixowl.memocam.data.mapper.PayloadMapper
 import com.logixowl.memocam.data.mapper.ResponseMapper
@@ -23,13 +22,13 @@ import io.ktor.client.request.setBody
  */
 
 
-class AuthNetworkDataSourceImpl(
+internal class AuthNetworkDataSourceImpl(
     private val client: HttpClient,
 ) : AuthNetworkDataSource {
     override suspend fun login(payload: LoginPayload): Result<Auth, DataError.Remote> {
         return safeCall<AuthResponse> {
             client.post(AppUrl.login) {
-                setBody(PayloadMapper.mapToRequest(payload))
+                setBody(PayloadMapper.mapToLoginRequest(payload))
             }
         }.map(ResponseMapper::mapToAuthDomain)
     }
@@ -37,7 +36,7 @@ class AuthNetworkDataSourceImpl(
     override suspend fun register(payload: RegisterPayload): Result<Auth, DataError.Remote> {
         return safeCall<AuthResponse> {
             client.post(AppUrl.register) {
-                setBody(PayloadMapper.mapToRequest(payload))
+                setBody(PayloadMapper.mapToRegisterRequest(payload))
             }
         }.map(ResponseMapper::mapToAuthDomain)
     }

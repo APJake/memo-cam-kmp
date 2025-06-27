@@ -23,7 +23,7 @@ import kotlinx.serialization.json.Json
  * on 22/06/2025
  */
 
-object HttpClientFactory {
+internal object HttpClientFactory {
     fun create(engine: HttpClientEngine, prefsDataSource: PrefsDataSource): HttpClient {
         return HttpClient(engine) {
             install(ContentNegotiation) {

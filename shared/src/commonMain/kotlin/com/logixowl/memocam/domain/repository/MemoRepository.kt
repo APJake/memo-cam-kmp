@@ -5,6 +5,8 @@ import com.logixowl.memocam.core.Result
 import com.logixowl.memocam.domain.model.Folder
 import com.logixowl.memocam.domain.model.FolderImage
 import com.logixowl.memocam.domain.model.PaginatedData
+import com.logixowl.memocam.domain.model.payload.CreateFolderPayload
+import com.logixowl.memocam.domain.model.payload.UpdateFolderPayload
 import com.logixowl.memocam.domain.model.payload.UploadFolderImagePayload
 
 /**
@@ -17,7 +19,11 @@ interface MemoRepository {
     suspend fun getAllFolders(): Result<List<Folder>, DataError>
 
     suspend fun createFolder(
-        name: String
+        payload: CreateFolderPayload,
+    ): Result<Folder, DataError>
+
+    suspend fun updateFolder(
+        payload: UpdateFolderPayload,
     ): Result<Folder, DataError>
 
     suspend fun deleteFolder(
@@ -42,11 +48,5 @@ interface MemoRepository {
     suspend fun deleteImage(
         imageId: String
     ): Result<Unit, DataError>
-
-    // --- Poster ---
-    suspend fun updatePosterImage(
-        folderId: String,
-        imageId: String
-    ): Result<Folder, DataError>
 
 }

@@ -14,7 +14,7 @@ import com.logixowl.memocam.domain.repository.AuthRepository
  * on 25/06/2025
  */
 
-class AuthRepositoryImpl(
+internal class AuthRepositoryImpl(
     private val prefsDataSource: PrefsDataSource,
     private val authNetworkDataSource: AuthNetworkDataSource,
 ) : AuthRepository {

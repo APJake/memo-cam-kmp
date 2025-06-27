@@ -5,7 +5,7 @@ package com.logixowl.memocam.data.network.response
  * on 22/06/2025
  */
 
-data class PaginatedImagesResponse(
+internal data class PaginatedImagesResponse(
     val images: List<FolderImageResponse>?,
     val currentPage: Int?,
     val totalPages: Int?,

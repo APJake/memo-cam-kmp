@@ -5,7 +5,7 @@ package com.logixowl.memocam.data.network.util
  * on 24/06/2025
  */
 
-object AppUrl {
+internal object AppUrl {
     private const val BASE_URL = "http://192.168.1.33:9009"
 
     // authentication
@@ -21,7 +21,7 @@ object AppUrl {
         get() = "$BASE_URL/folders"
 
     fun deleteFolder(id: String): String = "$BASE_URL/folders/$id"
-    fun updateFolderPoster(folderId: String, imageId: String) = "$BASE_URL/folders/$folderId/$imageId"
+    fun updateFolder(id: String): String = "$BASE_URL/folders/$id"
 
     // images
     fun allFolderImage(folderId: String): String = "$BASE_URL/folders/$folderId"

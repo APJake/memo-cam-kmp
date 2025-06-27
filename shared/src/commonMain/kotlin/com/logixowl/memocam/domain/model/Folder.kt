@@ -8,6 +8,8 @@ package com.logixowl.memocam.domain.model
 data class Folder(
     val id: String,
     val name: String,
+    val description: String,
+    val iconId: Int,
     val createdAt: Long,
     val posterImage: String?,
     val imageCount: Int,

@@ -5,11 +5,12 @@ package com.logixowl.memocam.data.network.response
  * on 22/06/2025
  */
 
-data class FolderImageResponse(
+internal data class FolderImageResponse(
     val id: String?,
     val fileName: String?,
     val originalName: String?,
     val size: Long?,
+    val isFrontCam: Boolean?,
     val contentType: String?,
     val uploadedAt: Long?,
 )

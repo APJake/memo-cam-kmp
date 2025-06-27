@@ -5,7 +5,7 @@ package com.logixowl.memocam.data.network.response
  * on 22/06/2025
  */
 
-data class UserResponse(
+internal data class UserResponse(
     val id: String?,
     val username: String?,
     val email: String?,

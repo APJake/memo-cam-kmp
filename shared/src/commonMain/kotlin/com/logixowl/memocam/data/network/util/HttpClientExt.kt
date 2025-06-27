@@ -15,7 +15,7 @@ import kotlin.coroutines.coroutineContext
  * on 22/06/2025
  */
 
-suspend inline fun <reified T> safeCall(
+internal suspend inline fun <reified T> safeCall(
     execute: () -> HttpResponse
 ): Result<T, DataError.Remote> {
     val response = try {
@@ -32,7 +32,7 @@ suspend inline fun <reified T> safeCall(
     return responseToResult(response)
 }
 
-suspend inline fun <reified T> responseToResult(
+internal suspend inline fun <reified T> responseToResult(
     response: HttpResponse
 ): Result<T, DataError.Remote> {
     return when (response.status.value) {

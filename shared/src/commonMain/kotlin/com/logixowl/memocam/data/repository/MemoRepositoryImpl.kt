@@ -6,6 +6,8 @@ import com.logixowl.memocam.domain.datasource.MemoNetworkDataSource
 import com.logixowl.memocam.domain.model.Folder
 import com.logixowl.memocam.domain.model.FolderImage
 import com.logixowl.memocam.domain.model.PaginatedData
+import com.logixowl.memocam.domain.model.payload.CreateFolderPayload
+import com.logixowl.memocam.domain.model.payload.UpdateFolderPayload
 import com.logixowl.memocam.domain.model.payload.UploadFolderImagePayload
 import com.logixowl.memocam.domain.repository.MemoRepository
 
@@ -14,15 +16,19 @@ import com.logixowl.memocam.domain.repository.MemoRepository
  * on 25/06/2025
  */
 
-class MemoRepositoryImpl(
+internal class MemoRepositoryImpl(
     private val memoNetworkDataSource: MemoNetworkDataSource,
 ) : MemoRepository {
     override suspend fun getAllFolders(): Result<List<Folder>, DataError> {
         return memoNetworkDataSource.getAllFolders()
     }
 
-    override suspend fun createFolder(name: String): Result<Folder, DataError> {
-        return memoNetworkDataSource.createFolder(name)
+    override suspend fun createFolder(payload: CreateFolderPayload): Result<Folder, DataError> {
+        return memoNetworkDataSource.createFolder(payload)
+    }
+
+    override suspend fun updateFolder(payload: UpdateFolderPayload): Result<Folder, DataError> {
+        return memoNetworkDataSource.updateFolder(payload)
     }
 
     override suspend fun deleteFolder(folderId: String): Result<Unit, DataError> {
@@ -43,12 +49,5 @@ class MemoRepositoryImpl(
 
     override suspend fun deleteImage(imageId: String): Result<Unit, DataError> {
         return memoNetworkDataSource.deleteImage(imageId)
-    }
-
-    override suspend fun updatePosterImage(
-        folderId: String,
-        imageId: String
-    ): Result<Folder, DataError> {
-        return memoNetworkDataSource.updatePosterImage(folderId, imageId)
     }
 }
