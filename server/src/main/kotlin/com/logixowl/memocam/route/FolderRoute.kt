@@ -2,7 +2,7 @@ package com.logixowl.memocam.route
 
 import com.logixowl.memocam.base.ApiResponse
 import com.logixowl.memocam.base.ErrorResponse
-import com.logixowl.memocam.request.CreateFolderRequest
+import com.logixowl.memocam.request.FolderRequest
 import com.logixowl.memocam.response.FolderResponse
 import com.logixowl.memocam.service.FolderService
 import com.logixowl.memocam.service.ImageService
@@ -33,7 +33,7 @@ fun Route.folderRoutes() {
             post {
                 val principal = call.principal<JWTPrincipal>()
                 val userId = principal!!.payload.getClaim("userId").asString()
-                val request = call.receive<CreateFolderRequest>()
+                val request = call.receive<FolderRequest>()
 
                 if (request.name.isBlank()) {
                     call.respond(
@@ -52,6 +52,8 @@ fun Route.folderRoutes() {
                         data = FolderResponse(
                             id = folder.id,
                             name = folder.name,
+                            description = folder.description,
+                            iconId = folder.iconId,
                             createdAt = folder.createdAt,
                         )
                     )
@@ -72,16 +74,13 @@ fun Route.folderRoutes() {
                 )
             }
 
-            put("/{folderId}/{imageId}") {
+            put("/{folderId}") {
                 val principal = call.principal<JWTPrincipal>()
                 val userId = principal!!.payload.getClaim("userId").asString()
+                val request = call.receive<FolderRequest>()
                 val folderId = call.parameters["folderId"] ?: return@put call.respond(
                     HttpStatusCode.BadRequest,
                     ErrorResponse(message = "Folder ID is required")
-                )
-                val imageId = call.parameters["imageId"] ?: return@put call.respond(
-                    HttpStatusCode.BadRequest,
-                    ErrorResponse(message = "Image ID is required")
                 )
 
                 // check folder
@@ -90,19 +89,21 @@ fun Route.folderRoutes() {
                     ErrorResponse(message = "Folder not found")
                 )
 
-                // check image
-                val hasImage = imageService.checkImage(imageId, folderId, userId)
-                if (!hasImage) {
-                    return@put call.respond(
-                        HttpStatusCode.NotFound,
-                        ErrorResponse(message = "Image not found")
-                    )
+                // check poster image if it contains
+                request.posterImage?.let { imageId ->
+                    val hasImage = imageService.checkImage(imageId, folderId, userId)
+                    if (!hasImage) {
+                        return@put call.respond(
+                            HttpStatusCode.NotFound,
+                            ErrorResponse(message = "Image not found")
+                        )
+                    }
                 }
 
-                val folder = folderService.updateFolderImage(
+                val folder = folderService.updateFolderById(
                     folderId = folderId,
                     userId = userId,
-                    imageId = imageId
+                    request = request,
                 ) ?: return@put call.respond(
                     HttpStatusCode.NotFound,
                     ErrorResponse(message = "Folder not found")
@@ -111,7 +112,7 @@ fun Route.folderRoutes() {
                 call.respond(
                     ApiResponse(
                         success = true,
-                        message = "Poster image updated successfully",
+                        message = "Folder is updated successfully",
                         data = folder
                     )
                 )
