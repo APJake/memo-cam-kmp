@@ -44,7 +44,7 @@ internal object ResponseMapper {
         iconId = res.iconId ?: 1,
         createdAt = res.createdAt ?: -1,
         posterImage = res.posterImage.orEmpty(),
-        imageCount = res.imageCount ?: -1,
+        imageCount = res.imageCount ?: 0,
     )
 
     fun mapToAuthDomain(res: AuthResponse) = Auth(

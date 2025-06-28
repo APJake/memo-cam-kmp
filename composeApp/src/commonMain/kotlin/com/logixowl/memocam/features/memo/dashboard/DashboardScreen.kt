@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,7 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.logixowl.memocam.features.memo.composables.FolderItemCard
 import com.logixowl.memocam.model.FolderUiModel
-import kotlinx.coroutines.flow.collectLatest
+import com.logixowl.memocam.ui.utils.LaunchedEventHandler
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -58,11 +59,14 @@ fun DashboardRoute(
     onNavigateFolder: (String) -> Unit,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
-    LaunchedEffect(true) {
-        viewModel.event.collectLatest { event ->
-            when (event) {
-                is DashboardEvent.Error -> {}
-            }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadFolders()
+    }
+    
+    LaunchedEventHandler(viewModel.event) { event ->
+        when (event) {
+            is DashboardEvent.Error -> {}
         }
     }
 
@@ -239,12 +243,14 @@ fun DashboardScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.weight(1f)
                 ) {
+                    item { Spacer(Modifier.height(10.dp)) }
                     items(uiState.folders) { folder ->
                         FolderItemCard(
                             folder = folder,
                             onClick = { onAction(DashboardAction.OnClickedFolder(folder.id)) }
                         )
                     }
+                    item { Spacer(Modifier.height(20.dp)) }
                 }
             }
         }
