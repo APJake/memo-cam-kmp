@@ -14,11 +14,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -104,6 +107,7 @@ fun SettingsScreen(
 
     // Animation states
     val buttonScale = remember { Animatable(0.95f) }
+    val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
 
     Column(
         modifier = Modifier
@@ -123,7 +127,7 @@ fun SettingsScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(systemBarsPadding.calculateTopPadding() + 200.dp)
                 .background(
                     brush = Brush.radialGradient(
                         colors = listOf(
@@ -133,6 +137,9 @@ fun SettingsScreen(
                         center = Offset(0.5f, 0.3f),
                         radius = 800f
                     )
+                )
+                .padding(
+                    top = systemBarsPadding.calculateTopPadding()
                 )
         ) {
             // Back button
