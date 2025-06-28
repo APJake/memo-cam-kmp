@@ -30,6 +30,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -37,7 +39,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.logixowl.memocam.ui.utils.LaunchedEventHandler
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Created by AP-Jake
@@ -45,7 +49,32 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  */
 
 @Composable
-fun CreateFolderScreen(
+fun CreateFolderRoute(
+    viewModel: CreateFolderViewModel = koinViewModel(),
+    onNavigateBack: () -> Unit,
+    onSuccessCreated: (String) -> Unit,
+) {
+    val state by viewModel.state.collectAsState()
+
+    LaunchedEventHandler(viewModel.event) {
+        when (it) {
+            is CreateFolderEvent.SuccessCreated -> onSuccessCreated.invoke(it.folderId)
+        }
+    }
+
+    CreateFolderScreen(
+        uiState = state,
+        onAction = {
+            when (it) {
+                CreateFolderAction.OnClickedBack -> onNavigateBack.invoke()
+                else -> viewModel.onAction(it)
+            }
+        }
+    )
+}
+
+@Composable
+private fun CreateFolderScreen(
     uiState: CreateFolderUiState,
     onAction: (CreateFolderAction) -> Unit,
     modifier: Modifier = Modifier
@@ -165,7 +194,6 @@ fun CreateFolderScreen(
             onClick = { onAction(CreateFolderAction.OnClickedCreateFolder) },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(64.dp)
                 .padding(24.dp),
             shape = RoundedCornerShape(20.dp),
             colors = ButtonDefaults.buttonColors(

@@ -333,20 +333,19 @@ fun SettingsItem(
         modifier = Modifier
             .fillMaxWidth()
             .scale(scale)
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) {}
             .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = {
                         isPressed = true
                         tryAwaitRelease()
                         isPressed = false
-                    }
+                        onClick()
+                    },
                 )
-            }
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            ) {
-                onClick()
             },
         color = Color.Transparent
     ) {

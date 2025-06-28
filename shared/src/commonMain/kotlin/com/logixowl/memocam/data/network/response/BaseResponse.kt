@@ -10,8 +10,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class BaseResponse<T>(
-    val success: Boolean?,
-    val message: String?,
+    val success: Boolean? = null,
+    val message: String? = null,
     @SerialName("data")
-    val result: T?,
+    val result: T? = null,
 )

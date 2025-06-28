@@ -9,6 +9,8 @@ import com.logixowl.memocam.features.auth.login.loginScreen
 import com.logixowl.memocam.features.auth.login.navigateToLogin
 import com.logixowl.memocam.features.auth.register.navigateToRegister
 import com.logixowl.memocam.features.auth.register.registerScreen
+import com.logixowl.memocam.features.memo.create_folder.createFolderScreen
+import com.logixowl.memocam.features.memo.create_folder.navigateToCreateFolder
 import com.logixowl.memocam.features.memo.dashboard.dashboardScreen
 import com.logixowl.memocam.features.memo.dashboard.navigateToDashboard
 import com.logixowl.memocam.features.settings.navigateToSettings
@@ -65,9 +67,17 @@ fun AppNavHost(
 
         // memo
         dashboardScreen(
-            onNavigateCreateFolder = {},
+            onNavigateCreateFolder = navController::navigateToCreateFolder,
             onNavigateSettings = navController::navigateToSettings,
             onNavigateFolder = {},
+        )
+
+        // folders
+        createFolderScreen(
+            onNavigateBack = navController::popBackStack,
+            onSuccessCreated = {
+                navController.popBackStack()
+            },
         )
     }
 }

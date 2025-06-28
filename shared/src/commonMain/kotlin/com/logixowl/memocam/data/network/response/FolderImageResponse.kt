@@ -9,11 +9,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class FolderImageResponse(
-    val id: String?,
-    val fileName: String?,
-    val originalName: String?,
-    val size: Long?,
-    val isFrontCam: Boolean?,
-    val contentType: String?,
-    val uploadedAt: Long?,
+    val id: String? = null,
+    val fileName: String? = null,
+    val originalName: String? = null,
+    val size: Long? = null,
+    val isFrontCam: Boolean? = null,
+    val contentType: String? = null,
+    val uploadedAt: Long? = null,
 )

@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class UserResponse(
-    val id: String?,
-    val username: String?,
-    val email: String?,
+    val id: String? = null,
+    val username: String? = null,
+    val email: String? = null,
 )

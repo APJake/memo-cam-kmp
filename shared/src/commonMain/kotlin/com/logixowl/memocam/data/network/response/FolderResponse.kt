@@ -9,11 +9,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class FolderResponse(
-    val id: String?,
-    val name: String?,
-    val description: String?,
-    val iconId: Int?,
-    val createdAt: Long?,
-    val posterImage: String?,
-    val imageCount: Int?,
+    val id: String? = null,
+    val name: String? = null,
+    val description: String? = null,
+    val iconId: Int? = null,
+    val createdAt: Long? = null,
+    val posterImage: String? = null,
+    val imageCount: Int? = null,
 )

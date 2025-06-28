@@ -9,10 +9,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class PaginatedImagesResponse(
-    val images: List<FolderImageResponse>?,
-    val currentPage: Int?,
-    val totalPages: Int?,
-    val totalCount: Long?,
-    val hasNext: Boolean?,
-    val hasPrevious: Boolean?,
+    val images: List<FolderImageResponse>? = null,
+    val currentPage: Int? = null,
+    val totalPages: Int? = null,
+    val totalCount: Long? = null,
+    val hasNext: Boolean? = null,
+    val hasPrevious: Boolean? = null,
 )
