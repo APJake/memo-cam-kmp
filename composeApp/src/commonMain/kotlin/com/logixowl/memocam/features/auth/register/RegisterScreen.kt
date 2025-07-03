@@ -51,7 +51,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.logixowl.memocam.features.auth.login.LoginAction
 import com.logixowl.memocam.features.auth.login.LoginScreen
+import com.logixowl.memocam.ui.components.AppOutlinedTextField
 import kotlinx.coroutines.flow.collectLatest
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -160,7 +162,7 @@ fun RegisterScreen(
             )
 
             // Name Field
-            OutlinedTextField(
+            AppOutlinedTextField(
                 value = uiState.username,
                 onValueChange = { onAction(RegisterAction.OnChangedName(it)) },
                 label = { Text("Username") },
@@ -179,10 +181,11 @@ fun RegisterScreen(
                     imeAction = ImeAction.Next
                 ),
                 singleLine = true,
+                error = uiState.usernameError,
             )
 
             // Email Field
-            OutlinedTextField(
+            AppOutlinedTextField(
                 value = uiState.email,
                 onValueChange = { onAction(RegisterAction.OnChangedEmail(it)) },
                 label = { Text("Email") },
@@ -202,10 +205,11 @@ fun RegisterScreen(
                     imeAction = ImeAction.Next
                 ),
                 singleLine = true,
+                error = uiState.emailError,
             )
 
             // Password Field
-            OutlinedTextField(
+            AppOutlinedTextField(
                 value = uiState.password,
                 onValueChange = { onAction(RegisterAction.OnChangedPassword(it)) },
                 label = { Text("Password") },
@@ -239,10 +243,11 @@ fun RegisterScreen(
                     imeAction = ImeAction.Next
                 ),
                 singleLine = true,
+                error = uiState.passwordError,
             )
 
             // Confirm Password Field
-            OutlinedTextField(
+            AppOutlinedTextField(
                 value = uiState.confirmPassword,
                 onValueChange = { onAction(RegisterAction.OnChangedConfirmPassword(it)) },
                 label = { Text("Confirm Password") },
@@ -276,6 +281,7 @@ fun RegisterScreen(
                     imeAction = ImeAction.Done
                 ),
                 singleLine = true,
+                error = uiState.confirmPasswordError,
             )
 
             // Register Button
@@ -319,7 +325,7 @@ fun RegisterScreen(
             // Error Message
             uiState.errorMessage?.let { error ->
                 Text(
-                    text = error,
+                    text = stringResource(error),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(top = 8.dp)

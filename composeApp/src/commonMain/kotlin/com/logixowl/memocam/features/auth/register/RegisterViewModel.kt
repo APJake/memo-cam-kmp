@@ -7,6 +7,8 @@ import com.logixowl.memocam.core.onError
 import com.logixowl.memocam.core.onSuccess
 import com.logixowl.memocam.domain.model.payload.RegisterPayload
 import com.logixowl.memocam.domain.repository.AuthRepository
+import com.logixowl.memocam.domain.validation.auth.RegisterValidation
+import com.logixowl.memocam.ui.error.asStringResource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -20,6 +22,7 @@ import kotlinx.coroutines.launch
 
 class RegisterViewModel(
     private val authRepository: AuthRepository,
+    private val registerValidation: RegisterValidation,
 ) : BaseViewModel<RegisterEvent>() {
 
     private val _state = MutableStateFlow(RegisterUiState())
@@ -36,6 +39,7 @@ class RegisterViewModel(
                 it.copy(
                     confirmPassword = action.password,
                     errorMessage = null,
+                    confirmPasswordError = null,
                 )
             }
 
@@ -43,6 +47,7 @@ class RegisterViewModel(
                 it.copy(
                     email = action.email,
                     errorMessage = null,
+                    emailError = null,
                 )
             }
 
@@ -50,6 +55,7 @@ class RegisterViewModel(
                 it.copy(
                     username = action.name,
                     errorMessage = null,
+                    usernameError = null,
                 )
             }
 
@@ -57,19 +63,20 @@ class RegisterViewModel(
                 it.copy(
                     password = action.password,
                     errorMessage = null,
+                    passwordError = null,
                 )
             }
 
             RegisterAction.OnClickedRegister -> onSubmitRegister()
             RegisterAction.OnToggleConfirmPasswordVisibility -> _state.update {
                 it.copy(
-                    isPasswordVisible = !it.isPasswordVisible,
+                    isConfirmPasswordVisible = !it.isConfirmPasswordVisible,
                 )
             }
 
             RegisterAction.OnTogglePasswordVisibility -> _state.update {
                 it.copy(
-                    isConfirmPasswordVisible = !it.isConfirmPasswordVisible,
+                    isPasswordVisible = !it.isPasswordVisible,
                 )
             }
 
@@ -78,33 +85,61 @@ class RegisterViewModel(
     }
 
     private fun onSubmitRegister() = with(state.value) {
-        if (password != confirmPassword) {
-            _state.update {
-                it.copy(
-                    errorMessage = "Passwords are not matched"
-                )
-            }
-            return@with
-        }
-
-        _state.update {
-            it.copy(
-                isLoading = true,
-                errorMessage = null,
-            )
-        }
-
         val payload = RegisterPayload(
             username = username,
             email = email,
             password = password,
+            confirmPassword = confirmPassword
         )
 
-        doRegister(payload)
+        registerValidation.invoke(payload)
+            .onSuccess { doRegister(payload) }
+            .onError { error ->
+                val errorResource = error.asStringResource
+                when (error) {
+                    is RegisterValidation.Error.Username -> {
+                        _state.update {
+                            it.copy(
+                                usernameError = errorResource
+                            )
+                        }
+                    }
+
+                    is RegisterValidation.Error.Email -> {
+                        _state.update {
+                            it.copy(
+                                emailError = errorResource
+                            )
+                        }
+                    }
+
+                    is RegisterValidation.Error.Password1 -> {
+                        _state.update {
+                            it.copy(
+                                passwordError = errorResource
+                            )
+                        }
+                    }
+
+                    is RegisterValidation.Error.Password2 -> {
+                        _state.update {
+                            it.copy(
+                                confirmPasswordError = errorResource
+                            )
+                        }
+                    }
+                }
+            }
     }
 
     private fun doRegister(payload: RegisterPayload) {
         viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isLoading = true,
+                    errorMessage = null,
+                )
+            }
             authRepository.register(payload)
                 .onSuccess {
                     emitEvent(RegisterEvent.RegisterSuccess)
@@ -113,10 +148,17 @@ class RegisterViewModel(
                     AppLogger.e("RegisterViewModel", "LoginFailed: $error")
                     _state.update {
                         it.copy(
-                            errorMessage = "Failed to register: $error"
+                            isLoading = false,
+                            errorMessage = error.asStringResource
                         )
                     }
                 }
+            _state.update {
+                it.copy(
+                    isLoading = false,
+                    errorMessage = null,
+                )
+            }
         }
     }
 
