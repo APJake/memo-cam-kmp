@@ -16,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -46,7 +45,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.logixowl.memocam.ui.components.AppOutlinedTextField
 import kotlinx.coroutines.flow.collectLatest
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -155,7 +156,7 @@ fun LoginScreen(
             )
 
             // Email Field
-            OutlinedTextField(
+            AppOutlinedTextField(
                 value = uiState.email,
                 onValueChange = { onAction(LoginAction.OnChangedEmail(it)) },
                 label = { Text("Email") },
@@ -175,10 +176,11 @@ fun LoginScreen(
                     imeAction = ImeAction.Next
                 ),
                 singleLine = true,
+                error = uiState.emailError,
             )
 
             // Password Field
-            OutlinedTextField(
+            AppOutlinedTextField(
                 value = uiState.password,
                 onValueChange = { onAction(LoginAction.OnChangedPassword(it)) },
                 label = { Text("Password") },
@@ -212,6 +214,7 @@ fun LoginScreen(
                     imeAction = ImeAction.Done
                 ),
                 singleLine = true,
+                error = uiState.passwordError,
             )
 
             // Login Button
@@ -255,7 +258,7 @@ fun LoginScreen(
             // Error Message
             uiState.errorMessage?.let { error ->
                 Text(
-                    text = error,
+                    text = stringResource(error),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(top = 8.dp)

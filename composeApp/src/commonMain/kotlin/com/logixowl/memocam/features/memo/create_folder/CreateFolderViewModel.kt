@@ -7,6 +7,8 @@ import com.logixowl.memocam.core.onError
 import com.logixowl.memocam.core.onSuccess
 import com.logixowl.memocam.domain.model.payload.CreateFolderPayload
 import com.logixowl.memocam.domain.repository.MemoRepository
+import com.logixowl.memocam.domain.validation.memo.CreateFolderValidation
+import com.logixowl.memocam.ui.error.asStringResource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -20,6 +22,7 @@ import kotlinx.coroutines.launch
 
 class CreateFolderViewModel(
     private val memoRepository: MemoRepository,
+    private val createFolderValidation: CreateFolderValidation,
 ) : BaseViewModel<CreateFolderEvent>() {
 
     private val _state = MutableStateFlow(CreateFolderUiState())
@@ -36,6 +39,7 @@ class CreateFolderViewModel(
                 it.copy(
                     description = action.description,
                     errorMessage = null,
+                    descriptionError = null,
                 )
             }
 
@@ -43,6 +47,7 @@ class CreateFolderViewModel(
                 it.copy(
                     title = action.title,
                     errorMessage = null,
+                    titleError = null,
                 )
             }
 
@@ -52,21 +57,36 @@ class CreateFolderViewModel(
     }
 
     private fun onSubmitCreateFolder() = with(state.value) {
-        _state.update {
-            it.copy(
-                isLoading = true,
-            )
-        }
         val payload = CreateFolderPayload(
             name = title,
             description = description,
             iconId = 1,
         )
 
-        doCreateFolder(payload)
+        createFolderValidation.invoke(payload)
+            .onSuccess { doCreateFolder(payload) }
+            .onError { error ->
+                when (error) {
+                    is CreateFolderValidation.Error.Description -> _state.update {
+                        it.copy(
+                            descriptionError = error.asStringResource
+                        )
+                    }
+                    is CreateFolderValidation.Error.Name -> _state.update {
+                        it.copy(
+                            titleError = error.asStringResource
+                        )
+                    }
+                }
+            }
     }
 
     private fun doCreateFolder(payload: CreateFolderPayload) {
+        _state.update {
+            it.copy(
+                isLoading = true,
+            )
+        }
         viewModelScope.launch {
             memoRepository.createFolder(payload)
                 .onSuccess {
@@ -78,7 +98,7 @@ class CreateFolderViewModel(
                     _state.update {
                         it.copy(
                             isLoading = true,
-                            errorMessage = "Failed to create"
+                            errorMessage = error.asStringResource
                         )
                     }
                 }

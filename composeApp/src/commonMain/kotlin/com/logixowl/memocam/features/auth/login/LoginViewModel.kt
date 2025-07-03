@@ -8,6 +8,8 @@ import com.logixowl.memocam.core.onSuccess
 import com.logixowl.memocam.domain.model.payload.LoginPayload
 import com.logixowl.memocam.domain.repository.AuthRepository
 import com.logixowl.memocam.domain.repository.PrefsRepository
+import com.logixowl.memocam.domain.validation.auth.LoginValidation
+import com.logixowl.memocam.ui.error.asStringResource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
@@ -24,6 +26,7 @@ import kotlinx.coroutines.launch
 class LoginViewModel(
     private val prefsRepository: PrefsRepository,
     private val authRepository: AuthRepository,
+    private val loginValidation: LoginValidation,
 ) : BaseViewModel<LoginEvent>() {
 
     private val _state = MutableStateFlow(LoginUiState())
@@ -44,6 +47,7 @@ class LoginViewModel(
                     it.copy(
                         email = action.value,
                         errorMessage = null,
+                        emailError = null,
                     )
                 }
             }
@@ -53,6 +57,7 @@ class LoginViewModel(
                     it.copy(
                         password = action.value,
                         errorMessage = null,
+                        passwordError = null,
                     )
                 }
             }
@@ -61,7 +66,6 @@ class LoginViewModel(
                 _state.update {
                     it.copy(
                         isPasswordVisible = !it.isPasswordVisible,
-                        errorMessage = null,
                     )
                 }
             }
@@ -75,24 +79,26 @@ class LoginViewModel(
     }
 
     private fun onSubmitLogin() = with(state.value) {
-        if (email.length < 10) {
-            _state.update {
-                it.copy(
-                    errorMessage = "Invalid email"
-                )
+        val payload = LoginPayload(email, password)
+        loginValidation.invoke(payload)
+            .onSuccess { makeLogin(payload) }
+            .onError { error ->
+                when (error) {
+                    is LoginValidation.Error.Email -> _state.update {
+                        it.copy(
+                            emailError = error.asStringResource
+                        )
+                    }
+                    is LoginValidation.Error.Password -> _state.update {
+                        it.copy(
+                            passwordError = error.asStringResource
+                        )
+                    }
+                }
             }
-            return@with
-        }
+    }
 
-        if (password.isBlank()) {
-            _state.update {
-                it.copy(
-                    errorMessage = "Invalid password"
-                )
-            }
-            return@with
-        }
-
+    private fun makeLogin(payload: LoginPayload) {
         _state.update {
             it.copy(
                 errorMessage = null,
@@ -100,10 +106,6 @@ class LoginViewModel(
             )
         }
 
-        makeLogin(LoginPayload(email, password))
-    }
-
-    private fun makeLogin(payload: LoginPayload) {
         viewModelScope.launch {
             authRepository.login(payload)
                 .onSuccess {
@@ -113,7 +115,7 @@ class LoginViewModel(
                     AppLogger.e("LoginViewModel", "LoginFailed: $error")
                     _state.update {
                         it.copy(
-                            errorMessage = "Failed to login"
+                            errorMessage = error.asStringResource
                         )
                     }
                 }

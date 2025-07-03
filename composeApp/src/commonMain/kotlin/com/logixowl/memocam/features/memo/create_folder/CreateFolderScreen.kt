@@ -39,7 +39,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.logixowl.memocam.ui.components.AppOutlinedTextField
 import com.logixowl.memocam.ui.utils.LaunchedEventHandler
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -145,7 +147,7 @@ private fun CreateFolderScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // Title Field
-            OutlinedTextField(
+            AppOutlinedTextField(
                 value = uiState.title,
                 onValueChange = { onAction(CreateFolderAction.OnChangedTitle(it)) },
                 label = { Text("Folder Title") },
@@ -157,11 +159,12 @@ private fun CreateFolderScreen(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF00838F),
                     focusedLabelColor = Color(0xFF00838F)
-                )
+                ),
+                error = uiState.titleError,
             )
 
             // Description Field
-            OutlinedTextField(
+            AppOutlinedTextField(
                 value = uiState.description,
                 onValueChange = { onAction(CreateFolderAction.OnChangedDescription(it)) },
                 label = { Text("Description (Optional)") },
@@ -176,13 +179,14 @@ private fun CreateFolderScreen(
                     focusedBorderColor = Color(0xFF00838F),
                     focusedLabelColor = Color(0xFF00838F)
                 ),
-                minLines = 3
+                minLines = 3,
+                error = uiState.descriptionError,
             )
 
             // Error Message
             uiState.errorMessage?.let { error ->
                 Text(
-                    text = error,
+                    text = stringResource(error),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall
                 )
