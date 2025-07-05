@@ -1,48 +1,109 @@
 package com.logixowl.memocam.features.memo.take_picture
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Cameraswitch
+import androidx.compose.material.icons.filled.CameraRear
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.FlashAuto
+import androidx.compose.material.icons.filled.FlashOff
+import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import com.logixowl.memocam.ui.components.CameraPreviewNative
+import com.logixowl.memocam.ui.utils.LaunchedEventHandler
+import dev.icerock.moko.permissions.compose.BindEffect
+import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Created by AP-Jake
- * on 25/06/2025
+ * on 03/07/2025
  */
+
+@Composable
+fun TakePictureRoute(
+    onNavigateBack: () -> Unit,
+    onSuccessTaken: (String, String) -> Unit,
+    viewModel: TakePictureViewModel = koinViewModel()
+) {
+    val factory = rememberPermissionsControllerFactory()
+    val controller = remember(factory) { factory.createPermissionsController() }
+
+    LaunchedEffect(controller) {
+        viewModel.initViewModel(controller)
+    }
+    val uiState by viewModel.state.collectAsState()
+
+    LaunchedEventHandler(viewModel.event) { event ->
+        when (event) {
+            is TakePictureEvent.OnSuccessImageCaptured ->
+                onSuccessTaken(event.folderId, event.imagePath)
+        }
+    }
+
+    if (uiState.isPermissionLoading) {
+        TakePicturePermissionLoadingScreen()
+    } else {
+        TakePictureScreen(
+            uiState = uiState,
+            onAction = { action ->
+                when (action) {
+                    is TakePictureAction.OnNavigateBack -> {
+                        onNavigateBack.invoke()
+                    }
+
+                    else -> viewModel.onAction(action)
+                }
+            }
+        )
+    }
+
+    BindEffect(viewModel.permissionsController)
+}
+
+@Composable
+private fun TakePicturePermissionLoadingScreen(
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        Text(
+            text = "Checking permissions...",
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
 
 @Composable
 fun TakePictureScreen(
@@ -50,255 +111,323 @@ fun TakePictureScreen(
     onAction: (TakePictureAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Black)
-    ) {
-        // Camera Preview Background (Placeholder)
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(
-                            Color(0xFF2D3748),
-                            Color(0xFF1A202C)
-                        )
-                    )
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "📷 Camera Preview",
-                color = Color.White.copy(alpha = 0.7f),
-                fontSize = 18.sp
-            )
-        }
+    var shouldCaptureImage by remember { mutableStateOf(false) }
 
-        // Overlay Image (if available)
-        uiState.overlayImageUrl?.let { imageUrl ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(uiState.overlayOpacity)
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(
-                                Color(0xFFE91E63).copy(alpha = 0.3f),
-                                Color(0xFF9C27B0).copy(alpha = 0.3f),
-                                Color(0xFF3F51B5).copy(alpha = 0.3f)
-                            )
-                        )
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "🖼️ Overlay Image",
-                    color = Color.White,
-                    fontSize = 16.sp
-                )
-            }
-        }
-
-        // Top Controls
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .statusBarsPadding(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Back Button
-            IconButton(
-                onClick = { onAction(TakePictureAction.OnBackClicked) },
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(
-                        Color.Black.copy(alpha = 0.4f),
-                        CircleShape
-                    )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-            // Switch Camera Button
-            IconButton(
-                onClick = { onAction(TakePictureAction.OnSwitchCamera) },
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(
-                        Color.Black.copy(alpha = 0.4f),
-                        CircleShape
-                    )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Cameraswitch,
-                    contentDescription = "Switch Camera",
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
-
-        // Bottom Controls
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(24.dp)
-                .navigationBarsPadding(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Opacity Slider (only show if overlay image exists)
-            uiState.overlayImageUrl?.let {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 32.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.Black.copy(alpha = 0.7f)
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "✨ Overlay Opacity",
-                            color = Color.White,
-                            fontSize = 14.sp,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Text(
-                                text = "👻",
-                                fontSize = 16.sp
-                            )
-
-                            Slider(
-                                value = uiState.overlayOpacity,
-                                onValueChange = { opacity ->
-                                    onAction(TakePictureAction.OnOpacityChanged(opacity))
-                                },
-                                valueRange = 0f..1f,
-                                modifier = Modifier.weight(1f),
-                                colors = SliderDefaults.colors(
-                                    thumbColor = Color(0xFFFF6B9D),
-                                    activeTrackColor = Color(0xFFFF6B9D),
-                                    inactiveTrackColor = Color.White.copy(alpha = 0.3f)
-                                )
-                            )
-
-                            Text(
-                                text = "🎨",
-                                fontSize = 16.sp
-                            )
-                        }
-
-                        Text(
-                            text = "${(uiState.overlayOpacity * 100).toInt()}%",
-                            color = Color(0xFFFF6B9D),
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
+    Box(modifier = modifier.fillMaxSize()) {
+        when {
+            !uiState.isPermissionGranted -> {
+                CameraPermissionContent(
+                    onRequestPermission = {
+                        onAction.invoke(TakePictureAction.OnPermissionRequested)
                     }
-                }
+                )
             }
 
-            // Take Picture Button
-            Button(
-                onClick = { onAction(TakePictureAction.OnTakePicture) },
-                modifier = Modifier
-                    .size(80.dp),
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White
-                ),
-                elevation = ButtonDefaults.buttonElevation(
-                    defaultElevation = 8.dp,
-                    pressedElevation = 12.dp
-                ),
-                enabled = !uiState.isLoading
-            ) {
-                if (uiState.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(32.dp),
-                        color = Color(0xFFFF6B9D),
-                        strokeWidth = 3.dp
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.CameraAlt,
-                        contentDescription = "Take Picture",
-                        tint = Color(0xFFFF6B9D),
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
+            uiState.capturedImagePath != null -> {
+                CapturedImagePreview(
+                    imagePath = uiState.capturedImagePath,
+                    onRetake = {
+                        onAction.invoke(TakePictureAction.OnRetakePhoto)
+                    },
+                    onKeep = { /* Handle keep image */ }
+                )
             }
-        }
 
-        // Error Message
-        uiState.errorMessage?.let { error ->
-            Card(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(16.dp)
-                    .padding(top = 80.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFFF5252).copy(alpha = 0.9f)
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = "❌ $error",
-                    color = Color.White,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(12.dp)
+            else -> {
+                CameraPreviewContent(
+                    uiState = uiState,
+                    onAction = onAction,
+                    shouldCaptureImage = shouldCaptureImage,
+                    onCaptureTrigger = { shouldCaptureImage = !shouldCaptureImage }
                 )
             }
         }
 
-        // Camera Mode Indicator
-        Card(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 100.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.Black.copy(alpha = 0.6f)
-            ),
-            shape = RoundedCornerShape(20.dp)
-        ) {
-            Text(
-                text = if (uiState.isFrontCamera) "🤳 Front Camera" else "📸 Back Camera",
-                color = Color.White,
-                fontSize = 12.sp,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+        // Error message overlay
+        uiState.errorMessage?.let { error ->
+            ErrorOverlay(
+                message = stringResource(error),
+                onDismiss = {
+                    onAction.invoke(TakePictureAction.OnClearError)
+                }
             )
         }
     }
 }
 
-@Preview
 @Composable
-private fun PreviewLoginScreen() {
-    MaterialTheme {
-        TakePictureScreen(
-            uiState = TakePictureUiState(
-                overlayImageUrl = "https://media.istockphoto.com/id/1486674561/photo/young-woman-taking-a-selfie.jpg?s=612x612&w=0&k=20&c=ZbH8PakbBL8UAFhvsFSRAWXJakqz92UgnFFxRC3ucj0=",
-            ),
-            onAction = {},
+private fun CameraPermissionContent(
+    onRequestPermission: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.PhotoCamera,
+            contentDescription = "Camera",
+            modifier = Modifier.size(80.dp),
+            tint = MaterialTheme.colorScheme.primary
         )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Camera Permission Required",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "This app needs camera permission to take photos",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Button(
+            onClick = onRequestPermission,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Grant Camera Permission")
+        }
+    }
+}
+
+@Composable
+private fun CameraPreviewContent(
+    shouldCaptureImage: Boolean,
+    uiState: TakePictureUiState,
+    onAction: (TakePictureAction) -> Unit,
+    onCaptureTrigger: () -> Unit
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Camera preview
+        CameraPreviewNative(
+            modifier = Modifier.fillMaxSize(),
+            flashMode = uiState.flashMode,
+            cameraFacing = uiState.cameraFacing,
+            onCameraReady = {
+                onAction.invoke(TakePictureAction.OnCameraReady)
+            },
+            onImageCaptured = {
+                onAction.invoke(TakePictureAction.OnImageCaptured(it))
+            },
+            onError = {
+                onAction.invoke(TakePictureAction.OnCameraError(it))
+            },
+            captureImage = shouldCaptureImage
+        )
+
+        // Top controls
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .align(Alignment.TopCenter),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Flash toggle
+            IconButton(
+                onClick = {
+                    onAction.invoke(TakePictureAction.OnFlashToggle)
+                },
+                modifier = Modifier
+                    .background(
+                        Color.Black.copy(alpha = 0.5f),
+                        CircleShape
+                    )
+            ) {
+                Icon(
+                    imageVector = when (uiState.flashMode) {
+                        FlashMode.OFF -> Icons.Default.FlashOff
+                        FlashMode.ON -> Icons.Default.FlashOn
+                        FlashMode.AUTO -> Icons.Default.FlashAuto
+                    },
+                    contentDescription = "Flash",
+                    tint = Color.White
+                )
+            }
+
+            // Camera switch
+            IconButton(
+                onClick = {
+                    onAction.invoke(TakePictureAction.OnCameraSwitch)
+                },
+                modifier = Modifier
+                    .background(
+                        Color.Black.copy(alpha = 0.5f),
+                        CircleShape
+                    )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CameraRear,
+                    contentDescription = "Switch Camera",
+                    tint = Color.White
+                )
+            }
+        }
+
+        // Bottom controls
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp)
+                .align(Alignment.BottomCenter),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Gallery button
+            IconButton(
+                onClick = { /* Handle gallery */ },
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(
+                        Color.Black.copy(alpha = 0.5f),
+                        CircleShape
+                    )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PhotoLibrary,
+                    contentDescription = "Gallery",
+                    tint = Color.White
+                )
+            }
+
+            // Capture button
+            IconButton(
+                onClick = {
+                    onAction.invoke(TakePictureAction.OnTakePicture)
+                    onCaptureTrigger()
+                },
+                modifier = Modifier
+                    .size(80.dp)
+                    .background(Color.White, CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PhotoCamera,
+                    contentDescription = "Take Picture",
+                    modifier = Modifier.size(40.dp),
+                    tint = Color.Black
+                )
+            }
+
+            // Settings button
+            IconButton(
+                onClick = { /* Handle settings */ },
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(
+                        Color.Black.copy(alpha = 0.5f),
+                        CircleShape
+                    )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings",
+                    tint = Color.White
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CapturedImagePreview(
+    imagePath: String,
+    onRetake: () -> Unit,
+    onKeep: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
+        // Image preview would go here
+        Text(
+            text = "Image Preview\n$imagePath",
+            color = Color.White,
+            modifier = Modifier.align(Alignment.Center)
+        )
+
+        // Bottom controls
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp)
+                .align(Alignment.BottomCenter),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(
+                onClick = onRetake,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Red.copy(alpha = 0.8f)
+                )
+            ) {
+                Text("Retake")
+            }
+
+            Button(
+                onClick = onKeep,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Green.copy(alpha = 0.8f)
+                )
+            ) {
+                Text("Keep")
+            }
+        }
+    }
+}
+
+@Composable
+private fun ErrorOverlay(
+    message: String,
+    onDismiss: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.7f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Error,
+                    contentDescription = "Error",
+                    tint = MaterialTheme.colorScheme.error
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = message,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(onClick = onDismiss) {
+                    Text("OK")
+                }
+            }
+        }
     }
 }

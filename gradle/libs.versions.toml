@@ -27,6 +27,7 @@ kmongo = "5.2.1"
 mongoDriverSync = "5.5.1"
 jbcrypt = "0.4"
 ksp = "2.0.20-1.0.24"
+moko = "0.19.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -52,6 +53,11 @@ jetbrains-compose-navigation = { group = "org.jetbrains.androidx.navigation", na
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinSerialization" }
 
 datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
+
+#camera and permissions
+moko-permissions = { module = "dev.icerock.moko:permissions", version.ref = "moko" }
+moko-permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "moko" }
+moko-permissions-camera = { module = "dev.icerock.moko:permissions-camera", version.ref = "moko" }
 
 #koin
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }

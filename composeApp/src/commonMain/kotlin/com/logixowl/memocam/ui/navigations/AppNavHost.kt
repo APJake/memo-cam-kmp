@@ -13,6 +13,7 @@ import com.logixowl.memocam.features.memo.create_folder.createFolderScreen
 import com.logixowl.memocam.features.memo.create_folder.navigateToCreateFolder
 import com.logixowl.memocam.features.memo.dashboard.dashboardScreen
 import com.logixowl.memocam.features.memo.dashboard.navigateToDashboard
+import com.logixowl.memocam.features.memo.take_picture.takePictureScreen
 import com.logixowl.memocam.features.settings.navigateToSettings
 import com.logixowl.memocam.features.settings.settingsScreen
 import com.logixowl.memocam.features.splash.splashScreen
@@ -78,6 +79,13 @@ fun AppNavHost(
             onSuccessCreated = {
                 navController.popBackStack()
             },
+        )
+
+        takePictureScreen(
+            onNavigateBack = navController::popBackStack,
+            onSuccessTaken = { folderId, imagePath ->
+
+            }
         )
     }
 }

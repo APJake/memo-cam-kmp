@@ -60,6 +60,10 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
             api(libs.koin.core)
 
+            api(libs.moko.permissions)
+            api(libs.moko.permissions.compose)
+            api(libs.moko.permissions.camera)
+
             implementation(libs.bundles.coil)
         }
         commonTest.dependencies {

@@ -1,14 +1,28 @@
 package com.logixowl.memocam.features.memo.take_picture
 
+import org.jetbrains.compose.resources.StringResource
+
 /**
  * Created by AP-Jake
- * on 25/06/2025
+ * on 03/07/2025
  */
 
 data class TakePictureUiState(
-    val overlayImageUrl: String? = null,
-    val overlayOpacity: Float = 0.5f,
-    val isFrontCamera: Boolean = false,
+    val isPermissionLoading: Boolean = true,
+    val isPermissionGranted: Boolean = false,
+    val isPermissionRequested: Boolean = false,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val capturedImagePath: String? = null,
+    val errorMessage: StringResource? = null,
+    val isCameraReady: Boolean = false,
+    val flashMode: FlashMode = FlashMode.OFF,
+    val cameraFacing: CameraFacing = CameraFacing.BACK
 )
+
+enum class FlashMode {
+    OFF, ON, AUTO
+}
+
+enum class CameraFacing {
+    FRONT, BACK
+}
