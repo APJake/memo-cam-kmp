@@ -46,6 +46,7 @@ import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 /**
  * Created by AP-Jake
@@ -56,14 +57,14 @@ import org.koin.compose.viewmodel.koinViewModel
 fun TakePictureRoute(
     onNavigateBack: () -> Unit,
     onSuccessTaken: (String, String) -> Unit,
-    viewModel: TakePictureViewModel = koinViewModel()
 ) {
     val factory = rememberPermissionsControllerFactory()
     val controller = remember(factory) { factory.createPermissionsController() }
 
-    LaunchedEffect(controller) {
-        viewModel.initViewModel(controller)
+    val viewModel: TakePictureViewModel = koinViewModel {
+        parametersOf(controller)
     }
+
     val uiState by viewModel.state.collectAsState()
 
     LaunchedEventHandler(viewModel.event) { event ->

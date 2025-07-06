@@ -13,6 +13,11 @@ import com.logixowl.memocam.features.memo.create_folder.createFolderScreen
 import com.logixowl.memocam.features.memo.create_folder.navigateToCreateFolder
 import com.logixowl.memocam.features.memo.dashboard.dashboardScreen
 import com.logixowl.memocam.features.memo.dashboard.navigateToDashboard
+import com.logixowl.memocam.features.memo.folder_detail.folderDetailScreen
+import com.logixowl.memocam.features.memo.folder_detail.navigateToFolderDetail
+import com.logixowl.memocam.features.memo.image_detail.imageDetailScreen
+import com.logixowl.memocam.features.memo.image_detail.navigateToImageDetail
+import com.logixowl.memocam.features.memo.take_picture.navigateToTakePicture
 import com.logixowl.memocam.features.memo.take_picture.takePictureScreen
 import com.logixowl.memocam.features.settings.navigateToSettings
 import com.logixowl.memocam.features.settings.settingsScreen
@@ -70,7 +75,7 @@ fun AppNavHost(
         dashboardScreen(
             onNavigateCreateFolder = navController::navigateToCreateFolder,
             onNavigateSettings = navController::navigateToSettings,
-            onNavigateFolder = {},
+            onNavigateFolder = navController::navigateToFolderDetail,
         )
 
         // folders
@@ -81,11 +86,22 @@ fun AppNavHost(
             },
         )
 
+        folderDetailScreen(
+            onClickedImage = navController::navigateToImageDetail,
+            onCaptureImage = navController::navigateToTakePicture,
+            onBackPressed = navController::popBackStack
+        )
+
+        // images
         takePictureScreen(
             onNavigateBack = navController::popBackStack,
             onSuccessTaken = { folderId, imagePath ->
 
             }
+        )
+
+        imageDetailScreen(
+            onClickedBack = navController::popBackStack
         )
     }
 }

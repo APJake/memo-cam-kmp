@@ -5,6 +5,8 @@ import com.logixowl.memocam.core.AppLogger
 import com.logixowl.memocam.core.BaseViewModel
 import com.logixowl.memocam.core.onError
 import com.logixowl.memocam.core.onSuccess
+import com.logixowl.memocam.delegate.FolderImagesCacheDelegate
+import com.logixowl.memocam.delegate.FolderImagesCacheState
 import com.logixowl.memocam.domain.repository.MemoRepository
 import com.logixowl.memocam.domain.repository.PrefsRepository
 import com.logixowl.memocam.mapper.toUiModel
@@ -24,12 +26,13 @@ import kotlinx.coroutines.launch
 class DashboardViewModel(
     private val memoRepository: MemoRepository,
     private val prefsRepository: PrefsRepository,
-) : BaseViewModel<DashboardEvent>() {
+    private val folderImagesCacheDelegate: FolderImagesCacheDelegate,
+) : BaseViewModel<DashboardEvent>(),
+    FolderImagesCacheDelegate by folderImagesCacheDelegate {
 
     private val _state = MutableStateFlow(DashboardUiState())
     val state = _state
         .onStart {
-            AppLogger.d("Testing", "DashboardVM onStart")
             observeDashboardData()
         }
         .stateIn(
@@ -38,8 +41,27 @@ class DashboardViewModel(
             _state.value
         )
 
+    fun onAction(action: DashboardAction) {
+        when (action) {
+            is DashboardAction.OnClickedFolder -> {
+                _state.value.folders.find { it.id == action.folderId }?.let { folder ->
+                    updateFolderImagesCacheState {
+                        FolderImagesCacheState(
+                            folder = folder
+                        )
+                    }
+
+                    emitEvent(DashboardEvent.OnNavigateFolderDetail)
+                }
+            }
+
+            else -> {}
+        }
+    }
+
     fun loadFolders() {
         viewModelScope.launch {
+            folderImagesCacheDelegate.cleanUpFolderImagesCache()
             memoRepository.getAllFolders()
                 .onSuccess { result ->
                     _state.update { st ->

@@ -24,13 +24,16 @@ internal object AppUrl {
     fun updateFolder(id: String): String = "$BASE_URL/folders/$id"
 
     // images
+    val imageBaseUrl: String
+        get() = "$BASE_URL/images"
+
     fun allFolderImage(folderId: String): String = "$BASE_URL/folders/$folderId"
     fun uploadFolderImage(folderId: String): String = "$BASE_URL/images/upload/$folderId"
     fun deleteFolderImage(imageId: String): String = "$BASE_URL/images/$imageId"
     fun getFolderImage(
-        imageId: String,
+        folderId: String,
         page: Int,
         pageSize: Int,
-    ): String = "$BASE_URL/images/$imageId?page=$page,pageSize:$pageSize"
+    ): String = "$BASE_URL/images/folder/$folderId?page=$page,pageSize:$pageSize"
 
 }

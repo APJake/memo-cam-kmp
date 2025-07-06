@@ -39,7 +39,7 @@ fun NavController.navigateToDashboard(
 fun NavGraphBuilder.dashboardScreen(
     onNavigateCreateFolder: () -> Unit,
     onNavigateSettings: () -> Unit,
-    onNavigateFolder: (String) -> Unit,
+    onNavigateFolder: () -> Unit,
 ) {
     composable<DashboardNavigation> {
         DashboardRoute(

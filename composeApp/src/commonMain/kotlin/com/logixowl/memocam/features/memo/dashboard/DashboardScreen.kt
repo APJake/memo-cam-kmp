@@ -56,7 +56,7 @@ fun DashboardRoute(
     viewModel: DashboardViewModel = koinViewModel(),
     onNavigateCreateFolder: () -> Unit,
     onNavigateSettings: () -> Unit,
-    onNavigateFolder: (String) -> Unit,
+    onNavigateFolder: () -> Unit,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -67,6 +67,9 @@ fun DashboardRoute(
     LaunchedEventHandler(viewModel.event) { event ->
         when (event) {
             is DashboardEvent.Error -> {}
+            DashboardEvent.OnNavigateFolderDetail -> {
+                onNavigateFolder.invoke()
+            }
         }
     }
 
@@ -78,14 +81,12 @@ fun DashboardRoute(
                     onNavigateCreateFolder.invoke()
                 }
 
-                is DashboardAction.OnClickedFolder -> {
-                    onNavigateFolder.invoke(action.folderId)
-                }
-
                 DashboardAction.OnClickedRefresh -> {}
                 DashboardAction.OnClickedSettings -> {
                     onNavigateSettings.invoke()
                 }
+
+                else -> viewModel.onAction(action)
             }
         }
     )

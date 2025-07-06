@@ -12,12 +12,10 @@ import kotlinx.serialization.Serializable
  */
 
 @Serializable
-data class TakePictureNavigation(
-    val folderId: String,
-)
+data object TakePictureNavigation
 
-fun NavController.navigateToTakePicture(folderId: String) {
-    traceNavigation(TakePictureNavigation(folderId)) {
+fun NavController.navigateToTakePicture() {
+    traceNavigation(TakePictureNavigation) {
         navigate(it)
     }
 }

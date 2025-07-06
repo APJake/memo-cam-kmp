@@ -1,7 +1,10 @@
 package com.logixowl.memocam.mapper
 
+import com.logixowl.memocam.core.UrlHelper
 import com.logixowl.memocam.domain.model.Folder
+import com.logixowl.memocam.domain.model.FolderImage
 import com.logixowl.memocam.model.FolderIcon
+import com.logixowl.memocam.model.FolderImageUiModel
 import com.logixowl.memocam.model.FolderUiModel
 import com.logixowl.memocam.ui.extensions.asImageVector
 import com.logixowl.memocam.ui.extensions.fromInt
@@ -20,3 +23,14 @@ fun Folder.toUiModel() = FolderUiModel(
     itemCount = this.imageCount,
 )
 
+fun FolderImage.toUiModel(dayNo: Int) = FolderImageUiModel(
+    id = id,
+    fileName = fileName,
+    originalName = originalName,
+    size = size,
+    isFrontCam = isFrontCam,
+    contentType = contentType,
+    uploadedAt = uploadedAt,
+    url = UrlHelper.asImageUrl(id),
+    dayNumber = "Day - $dayNo"
+)
