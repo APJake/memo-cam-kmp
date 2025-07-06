@@ -8,7 +8,6 @@ package com.logixowl.memocam.features.memo.take_picture
 sealed interface TakePictureEvent {
 
     data class OnSuccessImageCaptured(
-        val folderId: String,
         val imagePath: String
     ) : TakePictureEvent
 

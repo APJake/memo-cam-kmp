@@ -40,6 +40,11 @@
     <string name="error_local_disk_full">Storage is full. Please free up space to continue.</string>
     <string name="error_local_unknown">A local error occurred. Please try again.</string>
 
+    <!-- Taking picture errors-->
+    <string name="error_camera_permissions_denied_always">Camera permission is denied always. Need to allow the camera permission to use this feature.\nPlease go to System Settings to allow the Camera permission.</string>
+    <string name="error_camera_permissions_denied">Camera permission is denied. Please allow the camera permission to use this feature.</string>
+    <string name="error_camera">Camera error</string>
+
     <string name="error_common">Error</string>
 
 </resources>

@@ -22,7 +22,7 @@ fun NavController.navigateToTakePicture() {
 
 fun NavGraphBuilder.takePictureScreen(
     onNavigateBack: () -> Unit,
-    onSuccessTaken: (String, String) -> Unit,
+    onSuccessTaken: (String) -> Unit,
 ) {
     composable<TakePictureNavigation> {
         TakePictureRoute(

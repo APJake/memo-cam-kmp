@@ -15,6 +15,7 @@ sealed interface TakePictureAction {
     data object OnFlashToggle : TakePictureAction
     data object OnCameraSwitch : TakePictureAction
     data object OnRetakePhoto : TakePictureAction
+    data object OnKeepPhoto : TakePictureAction
     data object OnClearError : TakePictureAction
     data class OnImageCaptured(val imagePath: String) : TakePictureAction
     data class OnCameraError(val error: String) : TakePictureAction

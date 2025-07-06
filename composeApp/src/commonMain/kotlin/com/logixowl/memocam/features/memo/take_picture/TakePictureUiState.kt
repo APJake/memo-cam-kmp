@@ -20,9 +20,24 @@ data class TakePictureUiState(
 )
 
 enum class FlashMode {
-    OFF, ON, AUTO
+    OFF, ON, AUTO;
+
+    fun toggleNext(): FlashMode {
+        return when (this) {
+            OFF -> ON
+            ON -> AUTO
+            AUTO -> OFF
+        }
+    }
 }
 
 enum class CameraFacing {
-    FRONT, BACK
+    FRONT, BACK;
+
+    fun toggleNext(): CameraFacing {
+        return when (this) {
+            FRONT -> BACK
+            BACK -> FRONT
+        }
+    }
 }

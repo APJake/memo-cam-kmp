@@ -95,9 +95,7 @@ fun AppNavHost(
         // images
         takePictureScreen(
             onNavigateBack = navController::popBackStack,
-            onSuccessTaken = { folderId, imagePath ->
-
-            }
+            onSuccessTaken = { }
         )
 
         imageDetailScreen(

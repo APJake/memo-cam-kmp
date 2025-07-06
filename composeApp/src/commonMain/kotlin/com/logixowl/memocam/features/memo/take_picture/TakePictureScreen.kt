@@ -6,12 +6,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraRear
 import androidx.compose.material.icons.filled.Error
@@ -19,8 +23,6 @@ import androidx.compose.material.icons.filled.FlashAuto
 import androidx.compose.material.icons.filled.FlashOff
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -30,7 +32,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,8 +39,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.logixowl.memocam.ui.components.CameraPreviewNative
 import com.logixowl.memocam.ui.utils.LaunchedEventHandler
 import dev.icerock.moko.permissions.compose.BindEffect
@@ -56,7 +62,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun TakePictureRoute(
     onNavigateBack: () -> Unit,
-    onSuccessTaken: (String, String) -> Unit,
+    onSuccessTaken: (String) -> Unit,
 ) {
     val factory = rememberPermissionsControllerFactory()
     val controller = remember(factory) { factory.createPermissionsController() }
@@ -70,7 +76,7 @@ fun TakePictureRoute(
     LaunchedEventHandler(viewModel.event) { event ->
         when (event) {
             is TakePictureEvent.OnSuccessImageCaptured ->
-                onSuccessTaken(event.folderId, event.imagePath)
+                onSuccessTaken(event.imagePath)
         }
     }
 
@@ -130,7 +136,9 @@ fun TakePictureScreen(
                     onRetake = {
                         onAction.invoke(TakePictureAction.OnRetakePhoto)
                     },
-                    onKeep = { /* Handle keep image */ }
+                    onKeep = {
+                        onAction.invoke(TakePictureAction.OnKeepPhoto)
+                    }
                 )
             }
 
@@ -139,7 +147,8 @@ fun TakePictureScreen(
                     uiState = uiState,
                     onAction = onAction,
                     shouldCaptureImage = shouldCaptureImage,
-                    onCaptureTrigger = { shouldCaptureImage = !shouldCaptureImage }
+                    onCaptureTrigger = { shouldCaptureImage = true },
+                    resetCaptureTrigger = { shouldCaptureImage = false }
                 )
             }
         }
@@ -206,8 +215,12 @@ private fun CameraPreviewContent(
     shouldCaptureImage: Boolean,
     uiState: TakePictureUiState,
     onAction: (TakePictureAction) -> Unit,
-    onCaptureTrigger: () -> Unit
+    onCaptureTrigger: () -> Unit,
+    resetCaptureTrigger: () -> Unit,
 ) {
+    val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
+    val buttonFocusRequester = remember { FocusRequester() }
+
     Box(modifier = Modifier.fillMaxSize()) {
         // Camera preview
         CameraPreviewNative(
@@ -215,9 +228,11 @@ private fun CameraPreviewContent(
             flashMode = uiState.flashMode,
             cameraFacing = uiState.cameraFacing,
             onCameraReady = {
+                buttonFocusRequester.requestFocus()
                 onAction.invoke(TakePictureAction.OnCameraReady)
             },
             onImageCaptured = {
+                resetCaptureTrigger.invoke()
                 onAction.invoke(TakePictureAction.OnImageCaptured(it))
             },
             onError = {
@@ -230,7 +245,12 @@ private fun CameraPreviewContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(
+                    top = systemBarsPadding.calculateTopPadding() + 16.dp,
+                    bottom = 16.dp,
+                    start = 16.dp,
+                    end = 16.dp,
+                )
                 .align(Alignment.TopCenter),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -275,67 +295,18 @@ private fun CameraPreviewContent(
             }
         }
 
-        // Bottom controls
-        Row(
+        // Capture button
+        AnimatedCameraButton(
+            isLoading = uiState.isLoading || !uiState.isCameraReady,
+            onCameraClick = {
+                onAction.invoke(TakePictureAction.OnTakePicture)
+                onCaptureTrigger()
+            },
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp)
-                .align(Alignment.BottomCenter),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Gallery button
-            IconButton(
-                onClick = { /* Handle gallery */ },
-                modifier = Modifier
-                    .size(56.dp)
-                    .background(
-                        Color.Black.copy(alpha = 0.5f),
-                        CircleShape
-                    )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.PhotoLibrary,
-                    contentDescription = "Gallery",
-                    tint = Color.White
-                )
-            }
-
-            // Capture button
-            IconButton(
-                onClick = {
-                    onAction.invoke(TakePictureAction.OnTakePicture)
-                    onCaptureTrigger()
-                },
-                modifier = Modifier
-                    .size(80.dp)
-                    .background(Color.White, CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.PhotoCamera,
-                    contentDescription = "Take Picture",
-                    modifier = Modifier.size(40.dp),
-                    tint = Color.Black
-                )
-            }
-
-            // Settings button
-            IconButton(
-                onClick = { /* Handle settings */ },
-                modifier = Modifier
-                    .size(56.dp)
-                    .background(
-                        Color.Black.copy(alpha = 0.5f),
-                        CircleShape
-                    )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings",
-                    tint = Color.White
-                )
-            }
-        }
+                .padding(bottom = 60.dp)
+                .align(Alignment.BottomCenter)
+                .focusRequester(buttonFocusRequester)
+        )
     }
 }
 
@@ -350,12 +321,28 @@ private fun CapturedImagePreview(
             .fillMaxSize()
             .background(Color.Black)
     ) {
-        // Image preview would go here
-        Text(
-            text = "Image Preview\n$imagePath",
-            color = Color.White,
-            modifier = Modifier.align(Alignment.Center)
-        )
+        Card(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(20.dp)),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.Transparent
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(20.dp))
+            ) {
+                AsyncImage(
+                    model = imagePath,
+                    contentDescription = "Image Preview",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
 
         // Bottom controls
         Row(
