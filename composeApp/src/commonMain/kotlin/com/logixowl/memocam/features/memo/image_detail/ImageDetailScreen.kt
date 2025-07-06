@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.logixowl.memocam.model.FolderImageUiModel
+import com.logixowl.memocam.ui.components.MemoImage
 import com.logixowl.memocam.ui.extensions.preview
 import com.logixowl.memocam.ui.themes.AppTheme
 import com.logixowl.memocam.ui.themes.spacing
@@ -397,27 +398,13 @@ fun ZoomableImage(
                     scaleY = animatedScale
                     translationX = offset.x
                     translationY = offset.y
-                }
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(
-                            Color(0xFFE1BEE7),
-                            Color(0xFFF8BBD9),
-                            Color(0xFFFFD54F),
-                            Color(0xFF81C784),
-                            Color(0xFF4FC3F7)
-                        ),
-                        radius = 800f
-                    )
-                ),
+                },
             contentAlignment = Alignment.Center
         ) {
-            // In real app, replace with AsyncImage or similar
-            Icon(
-                imageVector = Icons.Default.PhotoCamera,
-                contentDescription = "Full Screen Image",
-                tint = Color.White.copy(alpha = 0.8f),
-                modifier = Modifier.size(120.dp)
+            MemoImage(
+                url = image.url,
+                modifier = Modifier
+                    .fillMaxSize(),
             )
         }
 

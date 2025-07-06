@@ -34,7 +34,6 @@ import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Photo
-import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material3.Card
@@ -63,6 +62,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.logixowl.memocam.model.FolderImageUiModel
+import com.logixowl.memocam.ui.components.MemoImage
 import com.logixowl.memocam.ui.extensions.preview
 import com.logixowl.memocam.ui.themes.AppTheme
 import com.logixowl.memocam.ui.themes.spacing
@@ -421,32 +421,11 @@ fun ImageSlideCard(
                 .fillMaxSize()
                 .clip(RoundedCornerShape(20.dp))
         ) {
-            // Image background (placeholder with gradient)
-            Box(
+            MemoImage(
+                url = image.url,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(
-                                Color(0xFFE1BEE7),
-                                Color(0xFFF8BBD9),
-                                Color(0xFFFFD54F),
-                                Color(0xFF81C784)
-                            ),
-                            start = Offset(0f, 0f),
-                            end = Offset(1000f, 1000f)
-                        )
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                // In real app, replace with AsyncImage or similar
-                Icon(
-                    imageVector = Icons.Default.PhotoCamera,
-                    contentDescription = "Captured Image",
-                    tint = Color.White.copy(alpha = 0.7f),
-                    modifier = Modifier.size(80.dp)
-                )
-            }
+                    .fillMaxSize(),
+            )
 
             // Gradient overlay for text readability
             Box(
@@ -456,8 +435,7 @@ fun ImageSlideCard(
                         Brush.verticalGradient(
                             colors = listOf(
                                 Color.Transparent,
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.3f),
+                                Color.Black.copy(alpha = 0.2f),
                                 Color.Black.copy(alpha = 0.7f)
                             ),
                             startY = 0f,
