@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.logixowl.memocam.core.BaseViewModel
 import com.logixowl.memocam.core.DataError
 import com.logixowl.memocam.core.FileManager
+import com.logixowl.memocam.delegate.FolderImagesCacheDelegate
 import com.logixowl.memocam.ui.error.asStringResource
 import dev.icerock.moko.permissions.DeniedAlwaysException
 import dev.icerock.moko.permissions.DeniedException
@@ -12,6 +13,7 @@ import dev.icerock.moko.permissions.PermissionsController
 import dev.icerock.moko.permissions.camera.CAMERA
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
@@ -27,7 +29,9 @@ import kotlinx.coroutines.withContext
 
 class TakePictureViewModel(
     val permissionsController: PermissionsController,
-) : BaseViewModel<TakePictureEvent>() {
+    private val folderImagesCacheDelegate: FolderImagesCacheDelegate,
+) : BaseViewModel<TakePictureEvent>(),
+    FolderImagesCacheDelegate by folderImagesCacheDelegate {
 
     private val _state = MutableStateFlow(TakePictureUiState())
     val state = _state
@@ -72,7 +76,18 @@ class TakePictureViewModel(
             TakePictureAction.OnTakePicture -> {
                 onTakeImage()
             }
+            is TakePictureAction.OnOpacityChanged -> {
+                onOpacityChanged(action.opacity)
+            }
             else -> {}
+        }
+    }
+
+    private fun onOpacityChanged(opacity: Float) {
+        _state.update {
+            it.copy(
+                overlayOpacity = opacity
+            )
         }
     }
 
@@ -200,6 +215,11 @@ class TakePictureViewModel(
 
     private fun checkPermission() {
         viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isLoading = true,
+                )
+            }
             val isCameraGranted = permissionsController.isPermissionGranted(Permission.CAMERA)
 
             _state.update {
@@ -207,6 +227,16 @@ class TakePictureViewModel(
                     isPermissionLoading = false,
                     isPermissionGranted = isCameraGranted,
                     isPermissionRequested = !isCameraGranted,
+                )
+            }
+
+            val lastImage = folderImagesCacheState.value.images.firstOrNull()
+            // for animation
+            delay(300)
+            _state.update {
+                it.copy(
+                    isLoading = false,
+                    overlayImage = lastImage,
                 )
             }
         }

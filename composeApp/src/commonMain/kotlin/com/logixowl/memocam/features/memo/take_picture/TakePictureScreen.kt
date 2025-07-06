@@ -1,5 +1,7 @@
 package com.logixowl.memocam.features.memo.take_picture
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
@@ -23,6 +26,10 @@ import androidx.compose.material.icons.filled.FlashAuto
 import androidx.compose.material.icons.filled.FlashOff
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material.icons.rounded.ArrowDropUp
+import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -30,6 +37,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,14 +48,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.logixowl.memocam.ui.components.CameraPreviewNative
+import com.logixowl.memocam.ui.components.MemoImage
 import com.logixowl.memocam.ui.utils.LaunchedEventHandler
 import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
@@ -220,6 +232,7 @@ private fun CameraPreviewContent(
 ) {
     val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
     val buttonFocusRequester = remember { FocusRequester() }
+    var showToolBox by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Camera preview
@@ -240,6 +253,26 @@ private fun CameraPreviewContent(
             },
             captureImage = shouldCaptureImage
         )
+
+        // Previous picture as overlay
+        AnimatedVisibility(
+            uiState.overlayImage != null,
+            enter = fadeIn()
+        ) {
+            uiState.overlayImage?.url?.let { imageUrl ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .alpha(uiState.overlayOpacity),
+                    contentAlignment = Alignment.Center
+                ) {
+                    MemoImage(
+                        url = imageUrl,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+        }
 
         // Top controls
         Row(
@@ -295,18 +328,119 @@ private fun CameraPreviewContent(
             }
         }
 
-        // Capture button
-        AnimatedCameraButton(
-            isLoading = uiState.isLoading || !uiState.isCameraReady,
-            onCameraClick = {
-                onAction.invoke(TakePictureAction.OnTakePicture)
-                onCaptureTrigger()
-            },
+        Column(
             modifier = Modifier
-                .padding(bottom = 60.dp)
                 .align(Alignment.BottomCenter)
-                .focusRequester(buttonFocusRequester)
-        )
+                .fillMaxWidth()
+                .padding(24.dp)
+                .navigationBarsPadding(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Opacity Slider (only show if overlay image exists)
+            AnimatedVisibility(showToolBox && uiState.overlayImage != null) {
+                uiState.overlayImage?.let {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 32.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.Black.copy(alpha = 0.65f)
+                        ),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "✨ Overlay Opacity",
+                                color = Color.White,
+                                fontSize = 14.sp,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Text(
+                                    text = "👻",
+                                    fontSize = 16.sp
+                                )
+
+                                Slider(
+                                    value = uiState.overlayOpacity,
+                                    onValueChange = { opacity ->
+                                        onAction(TakePictureAction.OnOpacityChanged(opacity))
+                                    },
+                                    valueRange = 0f..0.8f,
+                                    modifier = Modifier.weight(1f),
+                                    colors = SliderDefaults.colors(
+                                        thumbColor = Color(0xFFFF6B9D),
+                                        activeTrackColor = Color(0xFFFF6B9D),
+                                        inactiveTrackColor = Color.White.copy(alpha = 0.3f)
+                                    )
+                                )
+
+                                Text(
+                                    text = "🎨",
+                                    fontSize = 16.sp
+                                )
+                            }
+
+                            Text(
+                                text = "${(uiState.overlayOpacity * 100).toInt()}%",
+                                color = Color(0xFFFF6B9D),
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .padding(bottom = 30.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Box(Modifier.size(56.dp))
+
+                // Capture button
+                AnimatedCameraButton(
+                    isLoading = uiState.isLoading || !uiState.isCameraReady,
+                    onCameraClick = {
+                        onAction.invoke(TakePictureAction.OnTakePicture)
+                        onCaptureTrigger()
+                    },
+                    modifier = Modifier
+                        .focusRequester(buttonFocusRequester)
+                )
+
+                // Settings button
+                IconButton(
+                    onClick = { showToolBox = !showToolBox },
+                    modifier = Modifier
+                        .size(56.dp)
+                        .background(
+                            Color.Black.copy(alpha = 0.5f),
+                            CircleShape
+                        )
+                ) {
+                    Icon(
+                        imageVector = if (showToolBox)
+                            Icons.Rounded.ArrowDropUp
+                        else
+                            Icons.Rounded.ArrowDropDown,
+                        contentDescription = "Expand/Collapse",
+                        tint = Color.White
+                    )
+                }
+            }
+        }
     }
 }
 

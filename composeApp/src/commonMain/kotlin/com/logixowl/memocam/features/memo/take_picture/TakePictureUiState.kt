@@ -1,5 +1,6 @@
 package com.logixowl.memocam.features.memo.take_picture
 
+import com.logixowl.memocam.model.FolderImageUiModel
 import org.jetbrains.compose.resources.StringResource
 
 /**
@@ -8,6 +9,8 @@ import org.jetbrains.compose.resources.StringResource
  */
 
 data class TakePictureUiState(
+    val overlayImage: FolderImageUiModel? = null,
+    val overlayOpacity: Float = 0.3f,
     val isPermissionLoading: Boolean = true,
     val isPermissionGranted: Boolean = false,
     val isPermissionRequested: Boolean = false,
