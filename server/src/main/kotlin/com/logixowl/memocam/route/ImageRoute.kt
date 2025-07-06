@@ -3,6 +3,7 @@ package com.logixowl.memocam.route
 import com.logixowl.memocam.base.ApiResponse
 import com.logixowl.memocam.base.ErrorResponse
 import com.logixowl.memocam.model.ImageMetadata
+import com.logixowl.memocam.request.FolderRequest
 import com.logixowl.memocam.response.ImageResponse
 import com.logixowl.memocam.service.FolderService
 import com.logixowl.memocam.service.ImageService
@@ -15,7 +16,6 @@ import io.ktor.http.content.forEachPart
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
-import io.ktor.server.request.receiveChannel
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
@@ -25,9 +25,6 @@ import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import io.ktor.util.cio.writeChannel
-import io.ktor.utils.io.copyAndClose
-import java.io.File
 
 /**
  * Created by AP-Jake
@@ -79,10 +76,15 @@ fun Route.imageRoutes() {
 
                 // update poster image if required
                 if (folder.posterImage.isNullOrBlank()) {
-                    folderService.updateFolderImage(
+                    folderService.updateFolderById(
                         folderId = folderId,
                         userId = userId,
-                        imageId = imageMetadata!!.id
+                        request = FolderRequest(
+                            name = "",
+                            description = null,
+                            posterImage = imageMetadata!!.id,
+                            iconId = folder.iconId,
+                        )
                     )
                 }
 
@@ -96,6 +98,7 @@ fun Route.imageRoutes() {
                             fileName = imageMetadata!!.fileName,
                             originalName = imageMetadata!!.originalName,
                             size = imageMetadata!!.size,
+                            isFrontCam = imageMetadata!!.isFrontCam,
                             contentType = imageMetadata!!.contentType,
                             uploadedAt = imageMetadata!!.uploadedAt
                         )

@@ -29,8 +29,8 @@ class UserService {
         return user
     }
 
-    suspend fun authenticate(username: String, password: String): User? {
-        val user = findByUsername(username) ?: return null
+    suspend fun authenticate(email: String, password: String): User? {
+        val user = findByEmail(email) ?: return null
         return if (BCrypt.checkpw(password, user.passwordHash)) user else null
     }
 

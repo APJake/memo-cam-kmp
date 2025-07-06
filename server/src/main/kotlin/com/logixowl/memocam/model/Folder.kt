@@ -14,7 +14,9 @@ data class Folder(
     @BsonId
     val id: String = ObjectId().toString(),
     val name: String,
+    val description: String,
     val userId: String,
     val posterImage: String? = null,
+    val iconId: Int = 0,
     val createdAt: Long = System.currentTimeMillis()
 )

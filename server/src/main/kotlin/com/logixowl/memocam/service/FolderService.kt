@@ -3,7 +3,7 @@ package com.logixowl.memocam.service
 import com.logixowl.memocam.database.DatabaseFactory
 import com.logixowl.memocam.model.Folder
 import com.logixowl.memocam.model.ImageMetadata
-import com.logixowl.memocam.request.CreateFolderRequest
+import com.logixowl.memocam.request.FolderRequest
 import com.logixowl.memocam.response.FolderResponse
 import org.litote.kmongo.and
 import org.litote.kmongo.eq
@@ -17,9 +17,11 @@ class FolderService {
     private val folders = DatabaseFactory.folders
     private val images = DatabaseFactory.images
 
-    suspend fun createFolder(userId: String, request: CreateFolderRequest): Folder {
+    suspend fun createFolder(userId: String, request: FolderRequest): Folder {
         val folder = Folder(
             name = request.name,
+            description = request.description.orEmpty(),
+            iconId = request.iconId,
             userId = userId
         )
         folders.insertOne(folder)
@@ -33,6 +35,8 @@ class FolderService {
             FolderResponse(
                 id = folder.id,
                 name = folder.name,
+                description = folder.description,
+                iconId = folder.iconId,
                 createdAt = folder.createdAt,
                 posterImage = folder.posterImage,
                 imageCount = imageCount,
@@ -44,16 +48,28 @@ class FolderService {
         return folders.findOne(and(Folder::id eq folderId, Folder::userId eq userId))
     }
 
-    suspend fun updateFolderImage(folderId: String, userId: String, imageId: String): Folder? {
-        val folder = getFolderById(folderId, userId)?: return null
-        val folderToUpdate = folder.copy(
-            posterImage = imageId
+    suspend fun updateFolderById(userId: String, folderId: String, request: FolderRequest): Folder? {
+        val oldFolder = getFolderById(folderId, userId)?: return null
+        val newName = request.name
+            .takeIf { it.isNotBlank() }?: oldFolder.name
+        val newDescription = request.description
+            .takeIf { !it.isNullOrBlank() }?: oldFolder.description
+        val newIconId = request.iconId
+        val newPosterImageId = request.posterImage
+            .takeIf { !it.isNullOrBlank() }?: oldFolder.posterImage
+
+        val folder = oldFolder.copy(
+            name = newName,
+            description = newDescription,
+            iconId = newIconId,
+            posterImage = newPosterImageId
         )
+
         folders.replaceOneById(
             id = folderId,
-            replacement = folderToUpdate
+            replacement = folder
         )
-        return folderToUpdate
+        return folder
     }
 
     suspend fun deleteFolder(folderId: String, userId: String): Boolean {

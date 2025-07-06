@@ -18,6 +18,7 @@ data class ImageMetadata(
     val folderId: String,
     val userId: String,
     val size: Long,
+    val isFrontCam: Boolean,
     val contentType: String,
     val uploadedAt: Long = System.currentTimeMillis(),
     val gridFsId: String // MongoDB GridFS file ID

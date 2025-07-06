@@ -65,7 +65,7 @@ fun Route.authRoutes() {
         post("/login") {
             val request = call.receive<LoginRequest>()
 
-            val user = userService.authenticate(request.username, request.password)
+            val user = userService.authenticate(request.email, request.password)
             if (user == null) {
                 call.respond(
                     HttpStatusCode.Unauthorized,

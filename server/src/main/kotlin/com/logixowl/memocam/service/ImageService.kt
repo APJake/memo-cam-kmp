@@ -61,6 +61,8 @@ class ImageService {
                     userId = userId,
                     size = fileBytes.size.toLong(),
                     contentType = contentType,
+                    isFrontCam = true
+                    ,
                     gridFsId = gridFsId.toString()
                 )
 
@@ -126,6 +128,7 @@ class ImageService {
                 fileName = image.fileName,
                 originalName = image.originalName,
                 size = image.size,
+                isFrontCam = true,
                 contentType = image.contentType,
                 uploadedAt = image.uploadedAt
             )

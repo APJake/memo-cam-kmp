@@ -11,7 +11,9 @@ import kotlinx.serialization.Serializable
 data class FolderResponse(
     val id: String,
     val name: String,
+    val description: String,
     val createdAt: Long,
+    val iconId: Int,
     val posterImage: String? = null,
     val imageCount: Int = 0
 )

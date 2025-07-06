@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <!-- Username Validation Errors -->
+    <string name="error_username_empty">Username cannot be empty.</string>
+    <string name="error_username_invalid">Username contains invalid characters. Only letters, numbers, dashes, and underscores are allowed.</string>
+    <string name="error_username_too_short">Username is too short.</string>
+
+    <!-- Email Validation Errors -->
+    <string name="error_email_empty">Email address cannot be empty.</string>
+    <string name="error_email_invalid">Please enter a valid email address.</string>
+
+    <!-- Password1 Validation Errors -->
+    <string name="error_password1_empty">Password cannot be empty.</string>
+    <string name="error_password1_too_short">Password must be at least 8 characters long.</string>
+    <string name="error_password1_need_digit">Password must contain at least one digit.</string>
+    <string name="error_password1_need_char">Password must contain at least one letter.</string>
+
+    <!-- Password2 Validation Errors -->
+    <string name="error_password2_empty">Confirmation password cannot be empty.</string>
+    <string name="error_password2_not_match">Passwords do not match.</string>
+
+    <!-- Name Validation Errors -->
+    <string name="error_name_empty">Name cannot be empty.</string>
+    <string name="error_name_invalid">Name contains invalid characters.</string>
+
+    <!-- Description Validation Errors -->
+    <string name="error_desc_empty">Description cannot be empty.</string>
+    <string name="error_desc_invalid">Description contains invalid characters.</string>
+
+    <!-- Remote Data Errors -->
+    <string name="error_remote_unauthorized">You are not authorized. Please log in again.</string>
+    <string name="error_remote_request_timeout">The request timed out. Please try again.</string>
+    <string name="error_remote_too_many_requests">Too many requests. Please wait and try again later.</string>
+    <string name="error_remote_no_internet">No internet connection. Please check your network and try again.</string>
+    <string name="error_remote_server">Server error. Please try again later.</string>
+    <string name="error_remote_serialization">Data could not be processed. Please update the app or contact support.</string>
+    <string name="error_remote_unknown">An unknown error occurred. Please try again.</string>
+
+    <!-- Local Data Errors -->
+    <string name="error_local_disk_full">Storage is full. Please free up space to continue.</string>
+    <string name="error_local_unknown">A local error occurred. Please try again.</string>
+
+    <string name="error_common">Error</string>
+
+</resources>
