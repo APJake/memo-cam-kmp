@@ -8,6 +8,7 @@ import com.logixowl.memocam.features.memo.dashboard.DashboardViewModel
 import com.logixowl.memocam.features.memo.folder_detail.FolderDetailViewModel
 import com.logixowl.memocam.features.memo.image_detail.ImageDetailViewModel
 import com.logixowl.memocam.features.memo.take_picture.TakePictureViewModel
+import com.logixowl.memocam.features.memo.upload_screen.UploadViewModel
 import com.logixowl.memocam.features.settings.SettingsViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -27,4 +28,5 @@ val viewModelModules = module {
     viewModelOf(::TakePictureViewModel)
     viewModelOf(::FolderDetailViewModel)
     viewModelOf(::ImageDetailViewModel)
+    viewModelOf(::UploadViewModel)
 }

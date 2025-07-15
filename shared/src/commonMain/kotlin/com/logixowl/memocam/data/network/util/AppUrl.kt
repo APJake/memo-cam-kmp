@@ -13,6 +13,9 @@ internal object AppUrl {
         get() = "$BASE_URL/auth/login"
     val register: String
         get() = "$BASE_URL/auth/register"
+    val forgetPassword: String
+        get() = "$BASE_URL/auth/forget-password"
+
 
     // folder
     val createFolder: String

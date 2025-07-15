@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.logixowl.memocam.core.traceNavigation
+import com.logixowl.memocam.features.memo.take_picture.TakePictureNavigation
 import kotlinx.serialization.Serializable
 
 /**
@@ -29,5 +30,15 @@ fun NavGraphBuilder.imageDetailScreen(
 fun NavController.navigateToImageDetail(imageId: String) {
     traceNavigation(ImageDetailNavigation(imageId)) {
         navigate(it)
+    }
+}
+
+fun NavController.navigateToImageDetailFromUpload(imageId: String) {
+    traceNavigation(ImageDetailNavigation(imageId)) {
+        navigate(it) {
+            popUpTo(TakePictureNavigation) {
+                inclusive = true
+            }
+        }
     }
 }

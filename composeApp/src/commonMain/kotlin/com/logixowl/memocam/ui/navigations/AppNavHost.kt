@@ -17,8 +17,11 @@ import com.logixowl.memocam.features.memo.folder_detail.folderDetailScreen
 import com.logixowl.memocam.features.memo.folder_detail.navigateToFolderDetail
 import com.logixowl.memocam.features.memo.image_detail.imageDetailScreen
 import com.logixowl.memocam.features.memo.image_detail.navigateToImageDetail
+import com.logixowl.memocam.features.memo.image_detail.navigateToImageDetailFromUpload
 import com.logixowl.memocam.features.memo.take_picture.navigateToTakePicture
 import com.logixowl.memocam.features.memo.take_picture.takePictureScreen
+import com.logixowl.memocam.features.memo.upload_screen.navigateToUpload
+import com.logixowl.memocam.features.memo.upload_screen.uploadScreen
 import com.logixowl.memocam.features.settings.navigateToSettings
 import com.logixowl.memocam.features.settings.settingsScreen
 import com.logixowl.memocam.features.splash.splashScreen
@@ -95,11 +98,15 @@ fun AppNavHost(
         // images
         takePictureScreen(
             onNavigateBack = navController::popBackStack,
-            onSuccessTaken = { }
+            onSuccessTaken = navController::navigateToUpload,
         )
 
         imageDetailScreen(
             onClickedBack = navController::popBackStack
+        )
+
+        uploadScreen(
+            onSuccess = navController::navigateToImageDetailFromUpload
         )
     }
 }
