@@ -111,7 +111,7 @@ class UploadViewModel(
                     )
                 }
                 // wait for animation
-                delay(400)
+                delay(1200)
                 emitEvent(UploadEvent.OnSuccess(result.id))
             }.onError {
                 AppLogger.e("UploadViewModel", "Failed to upload: $it")
